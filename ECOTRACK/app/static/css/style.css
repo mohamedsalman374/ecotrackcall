@@ -1,0 +1,212 @@
+/* Custom Styles for EcoTrack */
+
+:root {
+    --bs-success: #198754;
+    --bs-success-rgb: 25, 135, 84;
+    --eco-green-light: #e8f5e9;
+    --eco-green: #2ecc71;
+    --eco-green-dark: #27ae60;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+main {
+    flex: 1;
+}
+
+/* Typography Utilities */
+.tracking-wider {
+    letter-spacing: 0.1em;
+}
+.py-6 {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+}
+
+/* Navbar */
+.navbar {
+    transition: all 0.3s ease;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+.navbar.scrolled {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05) !important;
+}
+.navbar-nav .nav-link {
+    font-weight: 500;
+    color: #495057;
+    margin: 0 0.5rem;
+    position: relative;
+    transition: color 0.3s ease;
+}
+.navbar-nav .nav-link:hover, 
+.navbar-nav .nav-link.active {
+    color: var(--bs-success);
+}
+.navbar-nav .nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--bs-success);
+    transition: width 0.3s ease;
+}
+.navbar-nav .nav-link:hover::after,
+.navbar-nav .nav-link.active::after {
+    width: 100%;
+}
+
+/* Buttons */
+.btn-hover-rise {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.btn-hover-rise:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(25, 135, 84, 0.25) !important;
+}
+
+/* Hero Section */
+.hero-section {
+    padding-top: 8rem;
+    padding-bottom: 6rem;
+    background: linear-gradient(135deg, rgba(232, 245, 233, 1) 0%, rgba(255, 255, 255, 1) 100%);
+    overflow: hidden;
+}
+.hero-title {
+    line-height: 1.2;
+}
+
+/* Features */
+.feature-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s;
+}
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.1) !important;
+    background-color: #fff !important;
+}
+.icon-box {
+    width: 60px;
+    height: 60px;
+    transition: transform 0.3s ease;
+}
+.feature-card:hover .icon-box {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* Benefit Items */
+.benefit-item {
+    padding: 1.5rem;
+    border-radius: 1rem;
+    transition: background-color 0.3s ease;
+}
+.benefit-item:hover {
+    background-color: rgba(25, 135, 84, 0.05);
+}
+
+/* Tech Cards */
+.tech-card {
+    transition: transform 0.3s ease;
+}
+.tech-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Accordion */
+.accordion-button:not(.collapsed) {
+    color: var(--bs-success);
+    background-color: transparent;
+}
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: rgba(25, 135, 84, 0.5);
+}
+
+/* Footer */
+.footer-links a {
+    color: #adb5bd;
+    text-decoration: none;
+    transition: color 0.3s ease, padding-left 0.3s ease;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+}
+.footer-links a:hover {
+    color: var(--bs-success);
+    padding-left: 5px;
+}
+.social-icon {
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+.social-icon:hover {
+    transform: translateY(-3px);
+    color: var(--bs-success) !important;
+}
+
+/* Additional utility classes to avoid inline styles */
+.blur-circle {
+    width: 500px;
+    height: 500px;
+    filter: blur(60px);
+    z-index: -1;
+}
+
+.hero-img {
+    transform-style: preserve-3d;
+    transition: transform 0.3s ease;
+}
+
+.title-svg {
+    margin-bottom: -10px;
+}
+
+.wave-container {
+    line-height: 0;
+}
+
+.wave-bottom {
+    display: block;
+    width: 100%;
+    height: 60px;
+    fill: #ffffff;
+}
+
+.max-w-700 {
+    max-width: 700px;
+}
+
+.timeline-line {
+    z-index: 1;
+}
+
+.z-2 {
+    z-index: 2;
+}
+
+.z-n1 {
+    z-index: -1;
+}
+
+.timeline-circle {
+    width: 80px;
+    height: 80px;
+    transition: transform 0.3s ease;
+}
+
+.stats-bg-pattern {
+    background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0);
+    background-size: 32px 32px;
+}
+
+.tech-icon-html { color: #E34F26; }
+.tech-icon-css { color: #1572B6; }
+.tech-icon-bs { color: #7952B3; }

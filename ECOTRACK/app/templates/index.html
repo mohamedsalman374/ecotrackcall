@@ -1,0 +1,439 @@
+{% extends 'base.html' %}
+
+{% block title %}EcoTrack - AI-Based Carbon Footprint Calculator{% endblock %}
+
+{% block content %}
+<!-- 2. Hero Section -->
+<section id="hero" class="hero-section position-relative d-flex align-items-center">
+    <div class="container">
+        <div class="row align-items-center gy-5">
+            <div class="col-lg-6 text-center text-lg-start" data-aos="fade-right" data-aos-duration="1000">
+                <div class="badge bg-success-subtle text-success px-3 py-2 rounded-pill mb-3 shadow-sm border border-success-subtle">
+                    <i class="bi bi-stars me-1"></i> AI-Powered Eco System
+                </div>
+                <h1 class="display-3 fw-bold mb-4 text-dark hero-title">Track & Reduce Your <span class="text-success position-relative z-1">Carbon Footprint<svg class="position-absolute start-0 bottom-0 w-100 z-n1 text-success opacity-25 title-svg" viewBox="0 0 200 20"><path fill="currentColor" d="M0,10 Q50,20 100,10 T200,10 L200,20 L0,20 Z"></path></svg></span></h1>
+                <p class="lead text-secondary mb-5 pe-lg-4">Make a real impact on climate change. Calculate your emissions, receive personalized AI recommendations, and achieve your sustainability goals effortlessly.</p>
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-lg-start">
+                    <a href="#features" class="btn btn-success btn-lg rounded-pill px-5 shadow-sm btn-hover-rise">Get Started <i class="bi bi-arrow-right ms-2"></i></a>
+                    <a href="#how-it-works" class="btn btn-outline-secondary btn-lg rounded-pill px-5 shadow-sm btn-hover-rise bg-white">Learn More</a>
+                </div>
+            </div>
+            <div class="col-lg-6 position-relative" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="200">
+                <div class="position-absolute top-50 start-50 translate-middle bg-success rounded-circle opacity-10 blur-circle"></div>
+                <img src="{{ url_for('static', filename='images/hero_image.png') }}" alt="Eco-friendly Earth Illustration" class="img-fluid rounded-4 shadow-lg hero-img">
+            </div>
+        </div>
+    </div>
+    <div class="position-absolute bottom-0 start-0 w-100 overflow-hidden wave-container">
+        <svg viewBox="0 0 1200 120" preserveAspectRatio="none" class="wave-bottom">
+            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118,137.95,123.6,207.4,107.44,246.3,98.37,284.18,77.34,321.39,56.44Z"></path>
+        </svg>
+    </div>
+</section>
+
+<!-- 3. Features Section -->
+<section id="features" class="py-6 bg-white">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h6 class="text-success fw-bold text-uppercase tracking-wider">Features</h6>
+            <h2 class="display-5 fw-bold mb-3">Everything You Need to Go Green</h2>
+            <p class="lead text-muted mx-auto max-w-700">Our comprehensive suite of tools empowers you to understand and minimize your environmental impact.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="card h-100 border-0 shadow-sm feature-card p-4 rounded-4 bg-light bg-opacity-50">
+                    <div class="icon-box bg-success text-white rounded-circle d-flex align-items-center justify-content-center mb-4 shadow-sm">
+                        <i class="bi bi-calculator fs-4"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Carbon Calculator</h4>
+                    <p class="text-muted mb-0">Accurately measure your emissions from transport, energy usage, and diet with our advanced calculation engine.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="card h-100 border-0 shadow-sm feature-card p-4 rounded-4 bg-light bg-opacity-50">
+                    <div class="icon-box bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mb-4 shadow-sm">
+                        <i class="bi bi-robot fs-4"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">AI Recommendations</h4>
+                    <p class="text-muted mb-0">Powered by Google Gemini API, get highly personalized, actionable advice on how to reduce your footprint.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="card h-100 border-0 shadow-sm feature-card p-4 rounded-4 bg-light bg-opacity-50">
+                    <div class="icon-box bg-info text-white rounded-circle d-flex align-items-center justify-content-center mb-4 shadow-sm">
+                        <i class="bi bi-pie-chart fs-4"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Analytics Dashboard</h4>
+                    <p class="text-muted mb-0">Visualize your emissions data over time with beautiful, interactive charts built using Chart.js.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="400">
+                <div class="card h-100 border-0 shadow-sm feature-card p-4 rounded-4 bg-light bg-opacity-50">
+                    <div class="icon-box bg-warning text-white rounded-circle d-flex align-items-center justify-content-center mb-4 shadow-sm">
+                        <i class="bi bi-graph-up fs-4"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Progress Tracking</h4>
+                    <p class="text-muted mb-0">Log your daily activities and monitor your journey towards a more sustainable lifestyle with continuous tracking.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="500">
+                <div class="card h-100 border-0 shadow-sm feature-card p-4 rounded-4 bg-light bg-opacity-50">
+                    <div class="icon-box bg-danger text-white rounded-circle d-flex align-items-center justify-content-center mb-4 shadow-sm">
+                        <i class="bi bi-bullseye fs-4"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Eco Goals</h4>
+                    <p class="text-muted mb-0">Set monthly reduction targets and participate in community challenges to lower your overall emissions.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="600">
+                <div class="card h-100 border-0 shadow-sm feature-card p-4 rounded-4 bg-light bg-opacity-50">
+                    <div class="icon-box bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center mb-4 shadow-sm">
+                        <i class="bi bi-cloud-check fs-4"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Secure Cloud Storage</h4>
+                    <p class="text-muted mb-0">Your data is safely stored and synced across devices using robust Supabase PostgreSQL infrastructure.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 4. How It Works -->
+<section id="how-it-works" class="py-6 bg-light">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h6 class="text-success fw-bold text-uppercase tracking-wider">Process</h6>
+            <h2 class="display-5 fw-bold mb-3">How It Works</h2>
+            <p class="lead text-muted mx-auto max-w-700">Four simple steps to transform your environmental impact.</p>
+        </div>
+        <div class="row position-relative">
+            <div class="d-none d-lg-block position-absolute top-50 start-0 w-100 border-top border-2 border-success opacity-25 timeline-line"></div>
+            
+            <div class="col-lg-3 col-md-6 mb-4 mb-lg-0" data-aos="fade-up" data-aos-delay="100">
+                <div class="text-center position-relative z-2">
+                    <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center shadow-lg mb-4 fw-bold fs-4 border border-4 border-light timeline-circle">1</div>
+                    <h4 class="fw-bold">Register</h4>
+                    <p class="text-muted">Create your secure account to start tracking.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4 mb-lg-0" data-aos="fade-up" data-aos-delay="200">
+                <div class="text-center position-relative z-2">
+                    <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center shadow-lg mb-4 fw-bold fs-4 border border-4 border-light timeline-circle">2</div>
+                    <h4 class="fw-bold">Enter Daily Activities</h4>
+                    <p class="text-muted">Input daily transport, energy, and consumption data.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4 mb-lg-0" data-aos="fade-up" data-aos-delay="300">
+                <div class="text-center position-relative z-2">
+                    <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center shadow-lg mb-4 fw-bold fs-4 border border-4 border-light timeline-circle">3</div>
+                    <h4 class="fw-bold">Calculate Footprint</h4>
+                    <p class="text-muted">See your total carbon emissions instantly.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                <div class="text-center position-relative z-2">
+                    <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center shadow-lg mb-4 fw-bold fs-4 border border-4 border-light timeline-circle">4</div>
+                    <h4 class="fw-bold">Get AI Recommendations</h4>
+                    <p class="text-muted">Receive AI-generated tasks to reduce your impact.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 5. Why Choose Our System (About) -->
+<section id="about" class="py-6 bg-white">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h6 class="text-success fw-bold text-uppercase tracking-wider">Benefits</h6>
+            <h2 class="display-5 fw-bold mb-3">Why Choose Our System</h2>
+            <p class="lead text-muted mx-auto max-w-700">We leverage cutting-edge technology to make sustainability accessible, engaging, and effective.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4" data-aos="zoom-in" data-aos-delay="100">
+                <div class="d-flex align-items-start benefit-item h-100">
+                    <div class="text-success fs-2 me-3"><i class="bi bi-shield-check"></i></div>
+                    <div>
+                        <h5 class="fw-bold">Data Privacy</h5>
+                        <p class="text-muted">Your data is encrypted and completely private. We never sell your personal information.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4" data-aos="zoom-in" data-aos-delay="200">
+                <div class="d-flex align-items-start benefit-item h-100">
+                    <div class="text-success fs-2 me-3"><i class="bi bi-lightning-charge"></i></div>
+                    <div>
+                        <h5 class="fw-bold">Real-time Analysis</h5>
+                        <p class="text-muted">Get immediate feedback and dynamically updated charts the moment you log an activity.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4" data-aos="zoom-in" data-aos-delay="300">
+                <div class="d-flex align-items-start benefit-item h-100">
+                    <div class="text-success fs-2 me-3"><i class="bi bi-magic"></i></div>
+                    <div>
+                        <h5 class="fw-bold">Smart AI Generation</h5>
+                        <p class="text-muted">Our AI considers your unique lifestyle to suggest changes that are actually feasible for you.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4" data-aos="zoom-in" data-aos-delay="400">
+                <div class="d-flex align-items-start benefit-item h-100">
+                    <div class="text-success fs-2 me-3"><i class="bi bi-people"></i></div>
+                    <div>
+                        <h5 class="fw-bold">Community Driven</h5>
+                        <p class="text-muted">Join thousands of others in collective challenges to amplify your environmental impact.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4" data-aos="zoom-in" data-aos-delay="500">
+                <div class="d-flex align-items-start benefit-item h-100">
+                    <div class="text-success fs-2 me-3"><i class="bi bi-phone"></i></div>
+                    <div>
+                        <h5 class="fw-bold">Cross-Platform</h5>
+                        <p class="text-muted">Access your dashboard anywhere with our fully responsive, mobile-first web app.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4" data-aos="zoom-in" data-aos-delay="600">
+                <div class="d-flex align-items-start benefit-item h-100">
+                    <div class="text-success fs-2 me-3"><i class="bi bi-globe2"></i></div>
+                    <div>
+                        <h5 class="fw-bold">Global Standards</h5>
+                        <p class="text-muted">Calculations align with established GHG protocols and global scientific standards.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 6. Statistics Section -->
+<section class="py-5 bg-success text-white position-relative overflow-hidden">
+    <div class="stats-bg-pattern position-absolute w-100 h-100 top-0 start-0 opacity-10"></div>
+    <div class="container position-relative z-2">
+        <div class="row text-center gy-4" id="stats-section">
+            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="100">
+                <i class="bi bi-people-fill display-4 mb-3 d-block opacity-75"></i>
+                <h2 class="display-4 fw-bold counter" data-target="25000">0</h2>
+                <p class="fs-5 mb-0">Users</p>
+            </div>
+            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="200">
+                <i class="bi bi-calculator-fill display-4 mb-3 d-block opacity-75"></i>
+                <h2 class="display-4 fw-bold counter" data-target="150000">0</h2>
+                <p class="fs-5 mb-0">Calculations</p>
+            </div>
+            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="300">
+                <i class="bi bi-trophy-fill display-4 mb-3 d-block opacity-75"></i>
+                <h2 class="display-4 fw-bold counter" data-target="12000">0</h2>
+                <p class="fs-5 mb-0">Eco Challenges</p>
+            </div>
+            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="400">
+                <i class="bi bi-tree-fill display-4 mb-3 d-block opacity-75"></i>
+                <h2 class="display-4 fw-bold counter" data-target="45000">0</h2>
+                <p class="fs-5 mb-0">Trees Saved</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 7. Technology Stack -->
+<section class="py-6 bg-light">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h6 class="text-success fw-bold text-uppercase tracking-wider">Tech Stack</h6>
+            <h2 class="display-5 fw-bold mb-3">Powered By Modern Tech</h2>
+            <p class="lead text-muted">Built with scalability, performance, and security in mind.</p>
+        </div>
+        <div class="row g-4 justify-content-center text-center">
+            <div class="col-6 col-md-4 col-lg-2" data-aos="flip-left" data-aos-delay="100">
+                <div class="card h-100 border-0 shadow-sm tech-card bg-white p-3 rounded-4">
+                    <i class="bi bi-filetype-html fs-1 mb-2 tech-icon-html"></i>
+                    <h6 class="fw-bold mb-0">HTML5</h6>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2" data-aos="flip-left" data-aos-delay="150">
+                <div class="card h-100 border-0 shadow-sm tech-card bg-white p-3 rounded-4">
+                    <i class="bi bi-filetype-css fs-1 mb-2 tech-icon-css"></i>
+                    <h6 class="fw-bold mb-0">CSS3</h6>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2" data-aos="flip-left" data-aos-delay="200">
+                <div class="card h-100 border-0 shadow-sm tech-card bg-white p-3 rounded-4">
+                    <i class="bi bi-bootstrap-fill fs-1 mb-2 tech-icon-bs"></i>
+                    <h6 class="fw-bold mb-0">Bootstrap 5</h6>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2" data-aos="flip-left" data-aos-delay="250">
+                <div class="card h-100 border-0 shadow-sm tech-card bg-white p-3 rounded-4">
+                    <i class="bi bi-filetype-js fs-1 text-warning mb-2"></i>
+                    <h6 class="fw-bold mb-0">JavaScript</h6>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2" data-aos="flip-left" data-aos-delay="300">
+                <div class="card h-100 border-0 shadow-sm tech-card bg-white p-3 rounded-4">
+                    <i class="bi bi-box-seam-fill fs-1 text-dark mb-2"></i>
+                    <h6 class="fw-bold mb-0">Flask</h6>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2" data-aos="flip-left" data-aos-delay="350">
+                <div class="card h-100 border-0 shadow-sm tech-card bg-white p-3 rounded-4">
+                    <i class="bi bi-fire fs-1 text-warning mb-2"></i>
+                    <h6 class="fw-bold mb-0">Firebase Auth</h6>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2" data-aos="flip-left" data-aos-delay="400">
+                <div class="card h-100 border-0 shadow-sm tech-card bg-white p-3 rounded-4">
+                    <i class="bi bi-database-fill fs-1 text-success mb-2"></i>
+                    <h6 class="fw-bold mb-0">Supabase</h6>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2" data-aos="flip-left" data-aos-delay="450">
+                <div class="card h-100 border-0 shadow-sm tech-card bg-white p-3 rounded-4">
+                    <i class="bi bi-robot fs-1 text-primary mb-2"></i>
+                    <h6 class="fw-bold mb-0">Gemini API</h6>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2" data-aos="flip-left" data-aos-delay="500">
+                <div class="card h-100 border-0 shadow-sm tech-card bg-white p-3 rounded-4">
+                    <i class="bi bi-bar-chart-fill fs-1 text-danger mb-2"></i>
+                    <h6 class="fw-bold mb-0">Chart.js</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 8. FAQ -->
+<section id="faq" class="py-6 bg-white">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="text-center mb-5" data-aos="fade-up">
+                    <h6 class="text-success fw-bold text-uppercase tracking-wider">FAQ</h6>
+                    <h2 class="display-5 fw-bold mb-3">Frequently Asked Questions</h2>
+                </div>
+                <div class="accordion accordion-flush rounded-4 shadow-sm border border-light p-3 bg-light bg-opacity-50" id="accordionFAQ" data-aos="fade-up" data-aos-delay="100">
+                    <div class="accordion-item bg-transparent border-bottom">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold fs-5 bg-transparent shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                What is a carbon footprint?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+                            <div class="accordion-body text-muted">
+                                A carbon footprint is the total amount of greenhouse gases (including carbon dioxide and methane) that are generated by our actions. It's an important measure of environmental impact.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item bg-transparent border-bottom">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold fs-5 bg-transparent shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                How does the AI recommendation system work?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+                            <div class="accordion-body text-muted">
+                                We utilize the Google Gemini API to analyze your specific lifestyle data. Based on your transport habits, diet, and energy use, the AI generates personalized and actionable steps you can take to lower your emissions.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item bg-transparent border-bottom">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold fs-5 bg-transparent shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                Is my personal data secure?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+                            <div class="accordion-body text-muted">
+                                Yes. We use Firebase Authentication for secure sign-in and Supabase PostgreSQL with strict row-level security policies to ensure your data is completely private and secure.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item bg-transparent border-bottom">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold fs-5 bg-transparent shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                Is EcoTrack free to use?
+                            </button>
+                        </h2>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+                            <div class="accordion-body text-muted">
+                                The core features of EcoTrack, including the calculator, dashboard, and basic AI recommendations, are completely free for individual users.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item bg-transparent border-0">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold fs-5 bg-transparent shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                Can businesses use this tool?
+                            </button>
+                        </h2>
+                        <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+                            <div class="accordion-body text-muted">
+                                While currently focused on individuals, we are developing an enterprise version designed to track organizational emissions and facilitate corporate sustainability goals.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 9. Contact Section -->
+<section id="contact" class="py-6 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="text-center mb-5" data-aos="fade-up">
+                    <h6 class="text-success fw-bold text-uppercase tracking-wider">Contact</h6>
+                    <h2 class="display-5 fw-bold mb-3">Get In Touch</h2>
+                    <p class="lead text-muted">Have questions or want to collaborate? Send us a message.</p>
+                </div>
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden" data-aos="fade-up" data-aos-delay="100">
+                    <div class="row g-0">
+                        <div class="col-md-5 bg-success text-white p-5 d-flex flex-column justify-content-center">
+                            <h3 class="fw-bold mb-4">Contact Info</h3>
+                            <div class="d-flex align-items-center mb-4">
+                                <i class="bi bi-geo-alt fs-3 me-3"></i>
+                                <span>123 Eco Street, Green City, Planet Earth</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-4">
+                                <i class="bi bi-envelope fs-3 me-3"></i>
+                                <span>hello@ecotrack.ai</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-telephone fs-3 me-3"></i>
+                                <span>+1 (555) 123-4567</span>
+                            </div>
+                        </div>
+                        <div class="col-md-7 p-5 bg-white">
+                            <form id="contactForm" novalidate>
+                                <div class="mb-3">
+                                    <label for="name" class="form-label fw-bold">Your Name</label>
+                                    <input type="text" class="form-control form-control-lg bg-light border-0 rounded-3" id="name" required>
+                                    <div class="invalid-feedback">Please enter your name.</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label fw-bold">Email Address</label>
+                                    <input type="email" class="form-control form-control-lg bg-light border-0 rounded-3" id="email" required>
+                                    <div class="invalid-feedback">Please enter a valid email address.</div>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="message" class="form-label fw-bold">Message</label>
+                                    <textarea class="form-control form-control-lg bg-light border-0 rounded-3" id="message" rows="4" required></textarea>
+                                    <div class="invalid-feedback">Please write a message.</div>
+                                </div>
+                                <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill fw-bold shadow-sm btn-hover-rise">Send Message <i class="bi bi-send ms-2"></i></button>
+                                <div id="formSuccessMsg" class="alert alert-success mt-3 d-none rounded-3" role="alert">
+                                    <i class="bi bi-check-circle-fill me-2"></i>Message sent successfully!
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

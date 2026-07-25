@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Profile - EcoTrack{% endblock %}
+{% block content %}
+<div class="container py-5 mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-5">
+                    <h2 class="fw-bold mb-4 text-center">Your Profile</h2>
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Full Name</label>
+                        <p class="fw-medium fs-5">{{ session.user.get('full_name', 'N/A') }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Email</label>
+                        <p class="fw-medium fs-5">{{ session.user.email }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
