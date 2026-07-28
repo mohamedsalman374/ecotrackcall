@@ -45,9 +45,11 @@
 
         <!-- Bottom Links -->
         <div class="sidebar-bottom border-top border-light border-opacity-25 py-3">
-            <a href="#" class="sidebar-link disabled-link" title="Coming Soon">
+            <a href="{{ url_for('feedback.history') }}" class="sidebar-link {% if request.endpoint and request.endpoint.startswith('feedback') %}active{% endif %}">
+                <i class="bi bi-chat-left-heart"></i><span>Feedback</span>
+            </a>
+            <a href="{{ url_for('profile.index') }}" class="sidebar-link {% if request.endpoint and request.endpoint.startswith('profile') %}active{% endif %}">
                 <i class="bi bi-person"></i><span>Profile</span>
-                <span class="badge bg-white text-success ms-auto small">Soon</span>
             </a>
             <a href="{{ url_for('auth.logout') }}" class="sidebar-link logout-link">
                 <i class="bi bi-box-arrow-right"></i><span>Logout</span>
@@ -316,9 +318,11 @@
             </a>
         </div>
         <div class="sidebar-bottom border-top border-light border-opacity-25 py-3">
-            <a href="#" class="sidebar-link disabled-link">
+            <a href="{{ url_for('feedback.history') }}" class="sidebar-link {% if request.endpoint and request.endpoint.startswith('feedback') %}active{% endif %}">
+                <i class="bi bi-chat-left-heart"></i><span>Feedback</span>
+            </a>
+            <a href="{{ url_for('profile.index') }}" class="sidebar-link {% if request.endpoint and request.endpoint.startswith('profile') %}active{% endif %}">
                 <i class="bi bi-person"></i><span>Profile</span>
-                <span class="badge bg-white text-success ms-auto small">Soon</span>
             </a>
             <a href="{{ url_for('auth.logout') }}" class="sidebar-link logout-link">
                 <i class="bi bi-box-arrow-right"></i><span>Logout</span>

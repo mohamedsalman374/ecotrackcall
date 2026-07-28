@@ -1,0 +1,125 @@
+{% extends 'dashboard/dashboard.html' %}
+
+{% block title %}Submit Feedback - EcoTrack{% endblock %}
+
+{% block extra_css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/feedback.css') }}">
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold mb-0">
+                <i class="bi bi-chat-left-heart text-primary me-2"></i>
+                {% if edit_mode %}Edit Feedback{% else %}Submit Feedback{% endif %}
+            </h2>
+            <p class="text-muted">We'd love to hear your thoughts, feature requests, or bug reports.</p>
+        </div>
+        <div>
+            <a href="{{ url_for('feedback.history') }}" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-clock-history me-1"></i> View History
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    
+                    {% set action_url = url_for('feedback.update', feedback_id=feedback.id) if edit_mode else url_for('feedback.submit') %}
+                    <form action="{{ action_url }}" method="POST" enctype="multipart/form-data" id="feedbackForm">
+                        
+                        <!-- Feedback Type -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark">What kind of feedback is this? <span class="text-danger">*</span></label>
+                            <div class="row g-2">
+                                {% set types = ['General Feedback', 'Bug Report', 'Feature Request', 'Improvement Suggestion', 'Support Request'] %}
+                                {% set current_type = feedback.feedback_type if edit_mode else 'General Feedback' %}
+                                {% for type in types %}
+                                <div class="col-md-6 col-lg-4">
+                                    <input type="radio" class="btn-check" name="feedback_type" id="type_{{ loop.index }}" value="{{ type }}" {% if current_type == type %}checked{% endif %} required>
+                                    <label class="btn btn-outline-primary w-100 rounded-3 text-start px-3 py-2 feedback-type-btn" for="type_{{ loop.index }}">
+                                        {% if type == 'Bug Report' %}<i class="bi bi-bug me-2"></i>
+                                        {% elif type == 'Feature Request' %}<i class="bi bi-lightbulb me-2"></i>
+                                        {% elif type == 'Support Request' %}<i class="bi bi-headset me-2"></i>
+                                        {% else %}<i class="bi bi-chat-text me-2"></i>{% endif %}
+                                        {{ type }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Subject -->
+                        <div class="mb-4">
+                            <label for="subject" class="form-label fw-bold text-dark">Subject <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-lg bg-light border-0" id="subject" name="subject" value="{{ feedback.subject if edit_mode else '' }}" placeholder="Briefly describe your feedback..." required maxlength="100">
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-4">
+                            <label for="description" class="form-label fw-bold text-dark">Description <span class="text-danger">*</span></label>
+                            <textarea class="form-control bg-light border-0" id="description" name="description" rows="5" placeholder="Please provide more details..." required maxlength="2000">{{ feedback.description if edit_mode else '' }}</textarea>
+                            <div class="text-end small text-muted mt-1"><span id="charCount">0</span> / 2000</div>
+                        </div>
+
+                        <!-- Rating Component -->
+                        <div class="mb-4 bg-light p-4 rounded-3 text-center border-0">
+                            <label class="form-label fw-bold text-dark mb-3 d-block">How would you rate your experience? (Optional)</label>
+                            <div class="rating-stars mb-2" id="ratingContainer">
+                                {% set current_rating = feedback.rating if edit_mode and feedback.rating else 0 %}
+                                <i class="bi bi-star fs-2 text-warning rating-star" data-value="1"></i>
+                                <i class="bi bi-star fs-2 text-warning rating-star" data-value="2"></i>
+                                <i class="bi bi-star fs-2 text-warning rating-star" data-value="3"></i>
+                                <i class="bi bi-star fs-2 text-warning rating-star" data-value="4"></i>
+                                <i class="bi bi-star fs-2 text-warning rating-star" data-value="5"></i>
+                            </div>
+                            <input type="hidden" name="rating" id="ratingInput" value="{{ current_rating }}">
+                            <div class="small text-muted" id="ratingLabel">Click to rate</div>
+                        </div>
+
+                        <!-- Screenshot Upload -->
+                        <div class="mb-5">
+                            <label class="form-label fw-bold text-dark">Screenshot (Optional)</label>
+                            <p class="text-muted small mb-2">Upload an image to help us understand your feedback (Max 5MB, JPG/PNG/WEBP).</p>
+                            
+                            <div class="border border-2 border-dashed rounded-3 p-4 text-center cursor-pointer bg-light position-relative" id="uploadZone" onclick="document.getElementById('screenshot').click()">
+                                <input type="file" class="d-none" id="screenshot" name="screenshot" accept=".jpg,.jpeg,.png,.webp">
+                                
+                                <div id="uploadPlaceholder" class="{% if edit_mode and feedback.screenshot_url %}d-none{% endif %}">
+                                    <i class="bi bi-cloud-arrow-up fs-1 text-primary mb-2"></i>
+                                    <h6 class="fw-bold mb-0">Click to upload or drag & drop</h6>
+                                </div>
+                                
+                                <div id="imagePreviewContainer" class="position-relative {% if not (edit_mode and feedback.screenshot_url) %}d-none{% endif %}">
+                                    <img id="imagePreview" src="{{ feedback.screenshot_url if edit_mode else '' }}" alt="Preview" class="img-fluid rounded-3" style="max-height: 200px;">
+                                    <div class="position-absolute top-0 end-0 p-2">
+                                        <button type="button" class="btn btn-sm btn-danger rounded-circle shadow" id="removeImageBtn" onclick="event.stopPropagation(); removeImage();">
+                                            <i class="bi bi-x"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{{ url_for('feedback.history') }}" class="btn btn-light rounded-pill px-4">Cancel</a>
+                            <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm">
+                                <i class="bi bi-send-fill me-2"></i>
+                                {% if edit_mode %}Update Feedback{% else %}Submit Feedback{% endif %}
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/feedback.js') }}"></script>
+{% endblock %}

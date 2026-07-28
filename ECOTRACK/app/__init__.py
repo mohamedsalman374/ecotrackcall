@@ -13,6 +13,8 @@ def create_app(config_class=Config):
     from app.routes.ai import ai_bp
     from app.routes.analytics import analytics_bp
     from app.routes.history import history_bp
+    from app.routes.profile import profile_bp
+    from app.routes.feedback import feedback_bp
     
     app.register_blueprint(home_bp)
     app.register_blueprint(auth_bp)
@@ -21,5 +23,7 @@ def create_app(config_class=Config):
     app.register_blueprint(ai_bp)
     app.register_blueprint(analytics_bp)
     app.register_blueprint(history_bp)
+    app.register_blueprint(profile_bp)
+    app.register_blueprint(feedback_bp)
 
     return app

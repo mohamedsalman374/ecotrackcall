@@ -76,3 +76,84 @@ CREATE POLICY "Users can view their own recommendations"
 ON ai_recommendations FOR SELECT
 USING (auth.uid() = (SELECT auth_user_id FROM users WHERE id = user_id));
 
+
+
+-- MODULE 9: USER PROFILE ADDITIONS
+ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_image_url TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS theme TEXT DEFAULT 'system';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS language TEXT DEFAULT 'en';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS email_notifications BOOLEAN DEFAULT true;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS weekly_reminder BOOLEAN DEFAULT false;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS monthly_reminder BOOLEAN DEFAULT true;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login TIMESTAMP WITH TIME ZONE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+
+-- Create trigger to automatically update the updated_at column
+CREATE OR REPLACE FUNCTION update_modified_column()
+RETURNS TRIGGER AS \$\$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+\$\$ language 'plpgsql';
+
+DROP TRIGGER IF EXISTS update_users_modtime ON users;
+CREATE TRIGGER update_users_modtime
+BEFORE UPDATE ON users
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column();
+
+-- Note: To fully support the storage requirements, run the following in Supabase SQL editor:
+-- INSERT INTO storage.buckets (id, name, public) VALUES ('profile-images', 'profile-images', true) ON CONFLICT DO NOTHING;
+-- CREATE POLICY "Avatar images are publicly accessible." ON storage.objects FOR SELECT USING (bucket_id = 'profile-images');
+-- CREATE POLICY "Anyone can upload an avatar." ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'profile-images');
+-- CREATE POLICY "Anyone can update their own avatar." ON storage.objects FOR UPDATE USING (bucket_id = 'profile-images');
+-- CREATE POLICY "Anyone can delete their own avatar." ON storage.objects FOR DELETE USING (bucket_id = 'profile-images');
+
+
+
+-- MODULE 10: FEEDBACK SYSTEM
+CREATE TABLE IF NOT EXISTS feedback (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    feedback_type TEXT NOT NULL,
+    subject TEXT NOT NULL,
+    description TEXT NOT NULL,
+    rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+    screenshot_url TEXT,
+    status TEXT DEFAULT 'Pending' CHECK (status IN ('Pending', 'In Review', 'Resolved', 'Closed')),
+    admin_response TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE feedback ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can insert their own feedback"
+ON feedback FOR INSERT
+WITH CHECK (auth.uid() = (SELECT auth_user_id FROM users WHERE id = user_id));
+
+CREATE POLICY "Users can view their own feedback"
+ON feedback FOR SELECT
+USING (auth.uid() = (SELECT auth_user_id FROM users WHERE id = user_id));
+
+CREATE POLICY "Users can update their own pending feedback"
+ON feedback FOR UPDATE
+USING (auth.uid() = (SELECT auth_user_id FROM users WHERE id = user_id) AND status = 'Pending');
+
+CREATE POLICY "Users can delete their own pending feedback"
+ON feedback FOR DELETE
+USING (auth.uid() = (SELECT auth_user_id FROM users WHERE id = user_id) AND status = 'Pending');
+
+CREATE TRIGGER update_feedback_modtime
+BEFORE UPDATE ON feedback
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column();
+
+-- Note: To fully support the storage requirements, run the following in Supabase SQL editor:
+-- INSERT INTO storage.buckets (id, name, public) VALUES ('feedback-images', 'feedback-images', true) ON CONFLICT DO NOTHING;
+-- CREATE POLICY "Feedback images are publicly accessible." ON storage.objects FOR SELECT USING (bucket_id = 'feedback-images');
+-- CREATE POLICY "Anyone can upload a feedback image." ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'feedback-images');
+-- CREATE POLICY "Anyone can update their own feedback image." ON storage.objects FOR UPDATE USING (bucket_id = 'feedback-images');
+-- CREATE POLICY "Anyone can delete their own feedback image." ON storage.objects FOR DELETE USING (bucket_id = 'feedback-images');
+

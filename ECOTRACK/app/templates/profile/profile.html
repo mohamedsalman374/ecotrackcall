@@ -1,0 +1,200 @@
+{% extends 'dashboard/dashboard.html' %}
+
+{% block title %}User Profile - EcoTrack{% endblock %}
+
+{% block extra_css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="mb-4">
+        <h2 class="fw-bold mb-0"><i class="bi bi-person-circle text-primary me-2"></i>Account Settings</h2>
+        <p class="text-muted">Manage your personal information, preferences, and security.</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Column: Avatar & Account Summary -->
+        <div class="col-lg-4">
+            
+            <!-- Avatar Card -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4 text-center">
+                    <div class="position-relative d-inline-block mb-3">
+                        {% if profile.profile_image_url %}
+                            <img src="{{ profile.profile_image_url }}" alt="Profile Avatar" class="rounded-circle profile-avatar-large shadow-sm" style="width: 150px; height: 150px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center mx-auto shadow-sm profile-avatar-large" style="width: 150px; height: 150px; font-size: 3rem;">
+                                {{ profile.full_name[:1] | upper if profile.full_name else '?' }}
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Upload Button Overlay -->
+                        <button class="btn btn-primary rounded-circle position-absolute bottom-0 end-0 shadow" style="width: 40px; height: 40px;" onclick="document.getElementById('profile_image').click();" title="Change Picture">
+                            <i class="bi bi-camera-fill"></i>
+                        </button>
+                    </div>
+                    
+                    <h5 class="fw-bold text-dark mb-1">{{ profile.full_name }}</h5>
+                    <p class="text-muted small mb-3">{{ profile.email }}</p>
+                    
+                    <!-- Hidden Form for Image Upload -->
+                    <form action="{{ url_for('profile.upload_image') }}" method="POST" enctype="multipart/form-data" id="imageUploadForm" class="d-none">
+                        <input type="file" id="profile_image" name="profile_image" accept=".jpg,.jpeg,.png,.webp" onchange="this.form.submit()">
+                    </form>
+                    
+                    {% if profile.profile_image_url %}
+                    <form action="{{ url_for('profile.remove_image') }}" method="POST" class="d-inline" onsubmit="return confirm('Remove your profile picture?');">
+                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                            <i class="bi bi-trash me-1"></i> Remove
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Account Status Card -->
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+                    <h6 class="fw-bold text-dark mb-0">Account Information</h6>
+                </div>
+                <div class="card-body p-4">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center bg-transparent">
+                            <span class="text-muted"><i class="bi bi-calendar-check me-2"></i>Joined</span>
+                            <span class="fw-medium text-dark">{{ profile.created_at[:10] if profile.created_at else 'Unknown' }}</span>
+                        </li>
+                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center bg-transparent">
+                            <span class="text-muted"><i class="bi bi-clock-history me-2"></i>Last Login</span>
+                            <span class="fw-medium text-dark">
+                                {% if profile.last_login %}
+                                    {{ profile.last_login[:10] }}
+                                {% else %}
+                                    Today
+                                {% endif %}
+                            </span>
+                        </li>
+                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center bg-transparent border-0">
+                            <span class="text-muted"><i class="bi bi-shield-check me-2"></i>Status</span>
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Active</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Forms -->
+        <div class="col-lg-8">
+            
+            <!-- Edit Profile & Preferences Form -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+                    <h6 class="fw-bold text-dark mb-0">Personal Details & Preferences</h6>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{{ url_for('profile.update') }}" method="POST">
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label for="full_name" class="form-label fw-medium">Full Name</label>
+                                <input type="text" class="form-control bg-light border-0" id="full_name" name="full_name" value="{{ profile.full_name }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label fw-medium">Email Address</label>
+                                <input type="email" class="form-control bg-light border-0" id="email" name="email" value="{{ profile.email }}" required>
+                                <small class="text-muted mt-1 d-block">Changing your email requires verification.</small>
+                            </div>
+                        </div>
+
+                        <hr class="text-muted opacity-25 my-4">
+
+                        <h6 class="fw-bold text-dark mb-3">Preferences</h6>
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label for="theme" class="form-label fw-medium">Theme</label>
+                                <select class="form-select bg-light border-0" id="theme" name="theme">
+                                    <option value="system" {% if profile.theme == 'system' or not profile.theme %}selected{% endif %}>System Default</option>
+                                    <option value="light" {% if profile.theme == 'light' %}selected{% endif %}>Light Mode</option>
+                                    <option value="dark" {% if profile.theme == 'dark' %}selected{% endif %}>Dark Mode</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="language" class="form-label fw-medium">Language</label>
+                                <select class="form-select bg-light border-0" id="language" name="language">
+                                    <option value="en" {% if profile.language == 'en' or not profile.language %}selected{% endif %}>English</option>
+                                    <option value="es" {% if profile.language == 'es' %}selected{% endif %}>Spanish (Español)</option>
+                                    <option value="fr" {% if profile.language == 'fr' %}selected{% endif %}>French (Français)</option>
+                                    <option value="de" {% if profile.language == 'de' %}selected{% endif %}>German (Deutsch)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold text-dark mb-3">Notifications</h6>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="email_notifications" name="email_notifications" {% if profile.email_notifications != False %}checked{% endif %}>
+                            <label class="form-check-label" for="email_notifications">Enable Email Notifications</label>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="weekly_reminder" name="weekly_reminder" {% if profile.weekly_reminder %}checked{% endif %}>
+                            <label class="form-check-label" for="weekly_reminder">Weekly Green Challenge Reminders</label>
+                        </div>
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input" type="checkbox" id="monthly_reminder" name="monthly_reminder" {% if profile.monthly_reminder != False %}checked{% endif %}>
+                            <label class="form-check-label" for="monthly_reminder">Monthly Carbon Calculation Reminder</label>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary rounded-pill px-4">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Security Card -->
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+                    <h6 class="fw-bold text-dark mb-0">Security & Password</h6>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{{ url_for('profile.change_password') }}" method="POST" id="passwordForm">
+                        <div class="mb-3">
+                            <label for="current_password" class="form-label fw-medium">Current Password</label>
+                            <input type="password" class="form-control bg-light border-0" id="current_password" name="current_password" required>
+                        </div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="new_password" class="form-label fw-medium">New Password</label>
+                                <input type="password" class="form-control bg-light border-0" id="new_password" name="new_password" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="confirm_password" class="form-label fw-medium">Confirm Password</label>
+                                <input type="password" class="form-control bg-light border-0" id="confirm_password" name="confirm_password" required>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-light p-3 rounded-3 mb-4">
+                            <p class="small fw-bold mb-2">Password Requirements:</p>
+                            <ul class="small text-muted mb-0 ps-3 password-reqs">
+                                <li id="req-length">Minimum 8 characters</li>
+                                <li id="req-upper">One uppercase letter</li>
+                                <li id="req-lower">One lowercase letter</li>
+                                <li id="req-num">One number</li>
+                                <li id="req-spec">One special character (!@#$%^&*)</li>
+                            </ul>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-danger rounded-pill px-4" id="passwordSubmitBtn" disabled>Update Password</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,24 @@
+.profile-avatar-large {
+    border: 4px solid #fff;
+    transition: transform 0.3s ease;
+}
+
+.profile-avatar-large:hover {
+    transform: scale(1.05);
+}
+
+.password-reqs li {
+    transition: color 0.3s ease;
+}
+
+.password-reqs li.valid {
+    color: #198754 !important;
+}
+
+.password-reqs li.invalid {
+    color: #dc3545 !important;
+}
+
+.form-control:focus, .form-select:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
+}
