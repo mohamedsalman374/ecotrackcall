@@ -2,6 +2,16 @@
 
 {% block title %}EcoTrack - AI-Based Carbon Footprint Calculator{% endblock %}
 
+{% block body_attributes %}
+<script>
+    // Re-enable scrollspy for the landing page
+    document.body.setAttribute('data-bs-spy', 'scroll');
+    document.body.setAttribute('data-bs-target', '#mainNav');
+    document.body.setAttribute('data-bs-offset', '70');
+    document.body.setAttribute('tabindex', '0');
+</script>
+{% endblock %}
+
 {% block content %}
 <!-- 2. Hero Section -->
 <section id="hero" class="hero-section position-relative d-flex align-items-center">

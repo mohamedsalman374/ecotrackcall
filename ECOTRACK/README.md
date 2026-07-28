@@ -11,6 +11,20 @@ EcoTrack is a scalable Flask web application designed to help users calculate th
 - History and Tracking
 - User Profile and Feedback
 
+## Module 5: Carbon Footprint Calculator
+The Carbon Footprint Calculator allows users to estimate their monthly emissions across 7 categories:
+- Transportation, Electricity, Water, Food, Waste, Shopping, and Travel.
+
+**Methodology**:
+Emissions are calculated deterministically using the formula: `Activity × Emission Factor = CO2e`.
+Emission factors are centrally managed in `app/services/emission_factor_service.py` and are based on general EPA/global averages.
+
+**Eco Score**:
+A score between 0-100 is generated based on total emissions relative to a baseline of 2000kg/month. Note: This score is an internal project metric and does not represent an official environmental standard.
+
+**Security**:
+Calculations are stored in a dedicated Supabase PostgreSQL table (`carbon_calculations`) using Row Level Security (RLS) to ensure users can only access their own data.
+
 ## Technology Stack
 - **Frontend**: HTML5, CSS3, Bootstrap 5, JavaScript
 - **Backend**: Python Flask

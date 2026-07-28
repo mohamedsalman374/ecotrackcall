@@ -1,0 +1,158 @@
+{% extends 'dashboard/dashboard.html' %}
+
+{% block title %}Calculation Result - EcoTrack{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0">Your Estimated Carbon Footprint</h2>
+            <p class="text-muted">Breakdown of your monthly environmental impact.</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Overview Cards -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4 mb-4 text-center h-100">
+                <div class="card-body p-5 d-flex flex-column justify-content-center">
+                    <h5 class="text-muted mb-3">Total Carbon Footprint</h5>
+                    <h1 class="display-4 fw-bold text-danger">{{ calculation.total_emissions }}</h1>
+                    <p class="fs-5 text-muted">kg CO₂e</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4 mb-4 text-center h-100">
+                <div class="card-body p-5 d-flex flex-column justify-content-center">
+                    <h5 class="text-muted mb-3">Eco Score</h5>
+                    <h1 class="display-4 fw-bold text-success">{{ calculation.eco_score }}</h1>
+                    <p class="fs-5 text-muted">/ 100</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4 mb-4 text-center h-100">
+                <div class="card-body p-5 d-flex flex-column justify-content-center">
+                    <h5 class="text-muted mb-3">Actions</h5>
+                    <div class="d-grid gap-3">
+                        <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-success rounded-pill">View Dashboard</a>
+                        <a href="{{ url_for('calculator.index') }}" class="btn btn-outline-success rounded-pill">Calculate Again</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Category Breakdown</h5>
+                    <div style="height: 350px; position: relative;">
+                        <canvas id="footprintChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail Table -->
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Emissions by Source</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <tbody>
+                                <tr>
+                                    <td><i class="bi bi-car-front text-primary me-2"></i> Transportation</td>
+                                    <td class="text-end fw-bold">{{ calculation.transportation_emissions }} kg</td>
+                                </tr>
+                                <tr>
+                                    <td><i class="bi bi-lightning-charge text-warning me-2"></i> Electricity</td>
+                                    <td class="text-end fw-bold">{{ calculation.electricity_emissions }} kg</td>
+                                </tr>
+                                <tr>
+                                    <td><i class="bi bi-droplet text-info me-2"></i> Water</td>
+                                    <td class="text-end fw-bold">{{ calculation.water_emissions }} kg</td>
+                                </tr>
+                                <tr>
+                                    <td><i class="bi bi-egg-fried text-success me-2"></i> Food</td>
+                                    <td class="text-end fw-bold">{{ calculation.food_emissions }} kg</td>
+                                </tr>
+                                <tr>
+                                    <td><i class="bi bi-trash text-secondary me-2"></i> Waste</td>
+                                    <td class="text-end fw-bold">{{ calculation.waste_emissions }} kg</td>
+                                </tr>
+                                <tr>
+                                    <td><i class="bi bi-bag text-danger me-2"></i> Shopping</td>
+                                    <td class="text-end fw-bold">{{ calculation.shopping_emissions }} kg</td>
+                                </tr>
+                                <tr>
+                                    <td><i class="bi bi-airplane text-dark me-2"></i> Travel</td>
+                                    <td class="text-end fw-bold">{{ calculation.travel_emissions }} kg</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('footprintChart').getContext('2d');
+    
+    const data = {
+        labels: ['Transportation', 'Electricity', 'Water', 'Food', 'Waste', 'Shopping', 'Travel'],
+        datasets: [{
+            data: [
+                {{ calculation.transportation_emissions }},
+                {{ calculation.electricity_emissions }},
+                {{ calculation.water_emissions }},
+                {{ calculation.food_emissions }},
+                {{ calculation.waste_emissions }},
+                {{ calculation.shopping_emissions }},
+                {{ calculation.travel_emissions }}
+            ],
+            backgroundColor: [
+                '#0d6efd', // Primary
+                '#ffc107', // Warning
+                '#0dcaf0', // Info
+                '#198754', // Success
+                '#6c757d', // Secondary
+                '#dc3545', // Danger
+                '#212529'  // Dark
+            ],
+            borderWidth: 0
+        }]
+    };
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: data,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return ' ' + context.label + ': ' + context.raw + ' kg CO₂e';
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

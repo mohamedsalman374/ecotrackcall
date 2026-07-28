@@ -32,7 +32,8 @@ class AuthService:
                 # Use service role client to bypass RLS for inserting the profile
                 # supabase-py v2 returns an APIResponse object, not a tuple
                 service_client.table('users').insert({
-                    "auth_user_id": user.id,
+                    "id": user.id,
+                    "firebase_uid": user.id,
                     "email": email,
                     "full_name": full_name
                 }).execute()
@@ -96,7 +97,7 @@ class AuthService:
         """
         try:
             service_client = get_supabase_service_client()
-            response = service_client.table('users').select('*').eq('auth_user_id', user_id).execute()
+            response = service_client.table('users').select('*').eq('id', user_id).execute()
             
             if response.data and len(response.data) > 0:
                 return {"success": True, "profile": response.data[0]}
@@ -116,7 +117,8 @@ class AuthService:
             # Use email prefix as the name fallback if not provided
             name = full_name or email.split('@')[0]
             service_client.table('users').insert({
-                "auth_user_id": user_id,
+                "id": user_id,
+                "firebase_uid": user_id,
                 "email": email,
                 "full_name": name
             }).execute()
@@ -144,4 +146,4 @@ class AuthService:
             return {"success": False, "error": e.message}
         except Exception as e:
             logger.error(f"Update Password Error: {str(e)}")
-            return {"success": False, "error": "An unexpected error occurred while updating the password."}
+            return {"success": False, "error": "An unexpected error occurred during password update."}

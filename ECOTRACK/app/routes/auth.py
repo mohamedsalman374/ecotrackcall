@@ -7,7 +7,7 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if 'user' in session:
-        return redirect(url_for('home.dashboard'))
+        return redirect(url_for('dashboard.dashboard'))
         
     if request.method == 'POST':
         full_name = request.form.get('fullName')
@@ -52,7 +52,7 @@ def register():
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if 'user' in session:
-        return redirect(url_for('home.dashboard'))
+        return redirect(url_for('dashboard.dashboard'))
         
     if request.method == 'POST':
         email = request.form.get('email')
@@ -70,7 +70,9 @@ def login():
             # Store necessary info in session
             session['user'] = {
                 'id': user.id,
-                'email': user.email
+                'email': user.email,
+                'access_token': result['session'].access_token,
+                'refresh_token': result['session'].refresh_token
             }
             # Fetch profile to store in session
             profile_res = AuthService.get_user_profile(user.id)
@@ -86,7 +88,7 @@ def login():
                 session.permanent = True
             
             flash('Successfully logged in!', 'success')
-            return redirect(url_for('home.dashboard'))
+            return redirect(url_for('dashboard.dashboard'))
         else:
             flash(result['error'], 'danger')
             
@@ -101,7 +103,7 @@ def logout():
 @auth_bp.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
     if 'user' in session:
-        return redirect(url_for('home.dashboard'))
+        return redirect(url_for('dashboard.dashboard'))
         
     if request.method == 'POST':
         email = request.form.get('email')
