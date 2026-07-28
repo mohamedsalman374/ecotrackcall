@@ -157,3 +157,9 @@ EXECUTE FUNCTION update_modified_column();
 -- CREATE POLICY "Anyone can update their own feedback image." ON storage.objects FOR UPDATE USING (bucket_id = 'feedback-images');
 -- CREATE POLICY "Anyone can delete their own feedback image." ON storage.objects FOR DELETE USING (bucket_id = 'feedback-images');
 
+
+
+-- MODULE 11: ADMIN PANEL
+ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin'));
+ALTER TABLE users ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+

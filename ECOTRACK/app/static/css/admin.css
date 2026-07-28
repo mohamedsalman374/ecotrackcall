@@ -1,0 +1,53 @@
+/* Admin Layout Styles */
+.admin-layout {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.admin-sidebar {
+    width: 260px;
+    transition: all 0.3s;
+    z-index: 1000;
+}
+
+.admin-sidebar .sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.admin-sidebar .sidebar-link:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.admin-sidebar .sidebar-link.active {
+    color: #fff;
+    background-color: #0d6efd;
+    border-left: 4px solid #fff;
+}
+
+.admin-sidebar .sidebar-link i {
+    margin-right: 15px;
+    font-size: 1.1rem;
+}
+
+.admin-table th {
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+/* Mobile Sidebar Toggle */
+@media (max-width: 991.98px) {
+    .admin-sidebar {
+        margin-left: -260px;
+        position: fixed;
+        height: 100vh;
+    }
+    
+    .admin-sidebar.show {
+        margin-left: 0;
+    }
+}

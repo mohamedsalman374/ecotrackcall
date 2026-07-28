@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Panel - EcoTrack{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-light admin-layout">
+
+<div class="d-flex min-vh-100">
+    <!-- Sidebar -->
+    <nav class="admin-sidebar bg-dark text-white d-flex flex-column shadow" id="sidebar">
+        <div class="p-4 border-bottom border-secondary text-center">
+            <h4 class="fw-bold mb-0 text-white"><i class="bi bi-shield-lock text-warning me-2"></i>Admin Panel</h4>
+            <span class="small text-muted">EcoTrack System</span>
+        </div>
+        
+        <div class="flex-grow-1 py-3 sidebar-links">
+            <a href="{{ url_for('admin.dashboard') }}" class="sidebar-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <a href="{{ url_for('admin.users') }}" class="sidebar-link {% if request.endpoint == 'admin.users' %}active{% endif %}">
+                <i class="bi bi-people"></i> Users
+            </a>
+            <a href="{{ url_for('admin.calculations') }}" class="sidebar-link {% if request.endpoint == 'admin.calculations' %}active{% endif %}">
+                <i class="bi bi-calculator"></i> Calculations
+            </a>
+            <a href="{{ url_for('admin.feedback') }}" class="sidebar-link {% if request.endpoint == 'admin.feedback' %}active{% endif %}">
+                <i class="bi bi-chat-left-text"></i> Feedback
+            </a>
+            <a href="{{ url_for('admin.reports') }}" class="sidebar-link {% if request.endpoint == 'admin.reports' %}active{% endif %}">
+                <i class="bi bi-file-earmark-bar-graph"></i> Reports
+            </a>
+            <a href="{{ url_for('admin.settings') }}" class="sidebar-link {% if request.endpoint == 'admin.settings' %}active{% endif %}">
+                <i class="bi bi-gear"></i> Settings
+            </a>
+        </div>
+        
+        <div class="p-3 border-top border-secondary mt-auto">
+            <a href="{{ url_for('dashboard.dashboard') }}" class="sidebar-link text-warning">
+                <i class="bi bi-box-arrow-left"></i> Exit to App
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content Wrapper -->
+    <div class="flex-grow-1 d-flex flex-column w-100 overflow-auto" id="main-content">
+        <!-- Top Navbar (Mobile toggle & User menu) -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm px-4 py-3 sticky-top">
+            <button class="btn btn-outline-dark d-lg-none me-3" id="sidebarToggle">
+                <i class="bi bi-list"></i>
+            </button>
+            <div class="ms-auto d-flex align-items-center">
+                <div class="dropdown">
+                    <button class="btn btn-light dropdown-toggle rounded-pill px-3" type="button" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-badge text-primary me-1"></i> 
+                        {{ session.get('user', {}).get('email', 'Admin') }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="adminDropdown">
+                        <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="px-4 pt-4">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show shadow-sm" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Page Content -->
+        <main class="p-4 flex-grow-1">
+            {% block content %}{% endblock %}
+        </main>
+        
+        <!-- Footer -->
+        <footer class="bg-white border-top py-3 text-center text-muted small">
+            &copy; 2024 EcoTrack Admin Panel. All rights reserved.
+        </footer>
+    </div>
+</div>
+
+<!-- Bootstrap Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

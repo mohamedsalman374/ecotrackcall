@@ -1,0 +1,136 @@
+{% extends 'admin/layout.html' %}
+
+{% block title %}User Management - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+        <h2 class="fw-bold mb-0">User Management</h2>
+        <p class="text-muted">View, edit, and manage all users across the platform.</p>
+    </div>
+    <div>
+        <a href="{{ url_for('admin.export', report_type='users', format='csv') }}" class="btn btn-outline-secondary rounded-pill px-3">
+            <i class="bi bi-filetype-csv me-1"></i> Export CSV
+        </a>
+    </div>
+</div>
+
+<!-- Filters & Search -->
+<div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+    <div class="card-body p-3">
+        <form action="{{ url_for('admin.users') }}" method="GET" class="row g-3 align-items-center">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="search" class="form-control bg-light border-0" placeholder="Search by name or email..." value="{{ search }}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select name="role" class="form-select bg-light border-0">
+                    <option value="all" {% if current_role == 'all' %}selected{% endif %}>All Roles</option>
+                    <option value="user" {% if current_role == 'user' %}selected{% endif %}>Standard Users</option>
+                    <option value="admin" {% if current_role == 'admin' %}selected{% endif %}>Administrators</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-grid">
+                <button type="submit" class="btn btn-secondary rounded-pill">Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Users Table -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 admin-table">
+            <thead class="bg-light text-muted small text-uppercase">
+                <tr>
+                    <th class="ps-4 py-3">User</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                    <th>Last Login</th>
+                    <th class="text-end pe-4">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td class="ps-4 py-3">
+                        <div class="d-flex align-items-center">
+                            {% if u.profile_image_url %}
+                                <img src="{{ u.profile_image_url }}" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center me-3" style="width: 40px; height: 40px;">
+                                    {{ u.full_name[:1] | upper if u.full_name else '?' }}
+                                </div>
+                            {% endif %}
+                            <div>
+                                <div class="fw-bold text-dark">{{ u.full_name }}</div>
+                                <div class="small text-muted">{{ u.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge {% if u.role == 'admin' %}bg-danger{% else %}bg-secondary{% endif %} rounded-pill px-3">
+                            {{ u.role | title }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge {% if u.is_active %}bg-success text-white{% else %}bg-warning text-dark{% endif %} rounded-pill px-3">
+                            {{ 'Active' if u.is_active else 'Inactive' }}
+                        </span>
+                    </td>
+                    <td class="text-muted small">{{ u.created_at[:10] if u.created_at else 'Unknown' }}</td>
+                    <td class="text-muted small">{{ u.last_login[:10] if u.last_login else 'Never' }}</td>
+                    <td class="text-end pe-4">
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light rounded-circle" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                <!-- Status Toggle -->
+                                <li>
+                                    <form action="{{ url_for('admin.update_user', user_id=u.id) }}" method="POST">
+                                        <input type="hidden" name="action" value="toggle_status">
+                                        <input type="hidden" name="is_active" value="{{ 'false' if u.is_active else 'true' }}">
+                                        <button type="submit" class="dropdown-item">
+                                            {% if u.is_active %}<i class="bi bi-pause-circle text-warning me-2"></i>Deactivate{% else %}<i class="bi bi-play-circle text-success me-2"></i>Activate{% endif %}
+                                        </button>
+                                    </form>
+                                </li>
+                                <!-- Role Change -->
+                                <li>
+                                    <form action="{{ url_for('admin.update_user', user_id=u.id) }}" method="POST">
+                                        <input type="hidden" name="action" value="change_role">
+                                        <input type="hidden" name="role" value="{{ 'admin' if u.role == 'user' else 'user' }}">
+                                        <button type="submit" class="dropdown-item">
+                                            {% if u.role == 'user' %}<i class="bi bi-shield-check text-danger me-2"></i>Make Admin{% else %}<i class="bi bi-person text-secondary me-2"></i>Make User{% endif %}
+                                        </button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <!-- Delete -->
+                                <li>
+                                    <form action="{{ url_for('admin.delete_user', user_id=u.id) }}" method="POST" onsubmit="return confirm('WARNING: Are you sure you want to permanently delete this user?');">
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <i class="bi bi-trash me-2"></i>Delete
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        No users found matching your criteria.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'admin/layout.html' %}
+
+{% block title %}Reports & Exports - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2 class="fw-bold mb-0">System Reports</h2>
+    <p class="text-muted">Generate and download comprehensive data reports.</p>
+</div>
+
+<div class="row g-4">
+    <!-- Users Report -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body p-4 text-center d-flex flex-column">
+                <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex justify-content-center align-items-center mx-auto mb-4" style="width: 80px; height: 80px;">
+                    <i class="bi bi-people fs-1"></i>
+                </div>
+                <h5 class="fw-bold text-dark">Users Report</h5>
+                <p class="text-muted small mb-4 flex-grow-1">Export a complete list of all registered users, their roles, and current activation status.</p>
+                
+                <div class="d-flex justify-content-center gap-2 mt-auto">
+                    <a href="{{ url_for('admin.export', report_type='users', format='csv') }}" class="btn btn-outline-primary rounded-pill px-4">
+                        <i class="bi bi-filetype-csv me-1"></i> CSV
+                    </a>
+                    <a href="{{ url_for('admin.export', report_type='users', format='pdf') }}" class="btn btn-primary rounded-pill px-4">
+                        <i class="bi bi-filetype-pdf me-1"></i> PDF
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Future Report Placeholder -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100 opacity-75">
+            <div class="card-body p-4 text-center d-flex flex-column">
+                <div class="bg-secondary bg-opacity-10 text-secondary rounded-circle d-inline-flex justify-content-center align-items-center mx-auto mb-4" style="width: 80px; height: 80px;">
+                    <i class="bi bi-calculator fs-1"></i>
+                </div>
+                <h5 class="fw-bold text-dark">Calculations Report</h5>
+                <p class="text-muted small mb-4 flex-grow-1">Export carbon footprint metrics and averages. (Coming Soon in V2)</p>
+                
+                <div class="d-flex justify-content-center gap-2 mt-auto">
+                    <button class="btn btn-outline-secondary rounded-pill px-4" disabled>
+                        <i class="bi bi-filetype-csv me-1"></i> CSV
+                    </button>
+                    <button class="btn btn-secondary rounded-pill px-4" disabled>
+                        <i class="bi bi-filetype-pdf me-1"></i> PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
