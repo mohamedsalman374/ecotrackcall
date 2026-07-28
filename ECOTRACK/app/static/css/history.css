@@ -1,0 +1,40 @@
+.history-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.history-table th {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    color: #6c757d;
+    border-bottom: 2px solid #e9ecef;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.history-table td {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.history-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.history-table tbody tr.selected {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+.history-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.row-checkbox, #selectAll {
+    width: 1.2rem;
+    height: 1.2rem;
+    cursor: pointer;
+}

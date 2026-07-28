@@ -1,0 +1,212 @@
+{% extends 'dashboard/dashboard.html' %}
+
+{% block title %}Analytics - EcoTrack{% endblock %}
+
+{% block extra_css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analytics.css') }}">
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold mb-0"><i class="bi bi-pie-chart text-warning me-2"></i>Carbon Analytics</h2>
+            <p class="text-muted">Track and visualize your environmental impact over time.</p>
+        </div>
+        <div>
+            <!-- Filter Dropdown -->
+            <form action="{{ url_for('analytics.index') }}" method="GET" class="d-flex align-items-center">
+                <label for="filter" class="form-label me-2 mb-0 fw-medium text-muted">Timeframe:</label>
+                <select name="filter" id="filter" class="form-select border-0 shadow-sm fw-medium" onchange="this.form.submit()" style="cursor: pointer; width: auto;">
+                    <option value="today" {% if current_filter == 'today' %}selected{% endif %}>Today</option>
+                    <option value="7_days" {% if current_filter == '7_days' %}selected{% endif %}>Last 7 Days</option>
+                    <option value="30_days" {% if current_filter == '30_days' %}selected{% endif %}>Last 30 Days</option>
+                    <option value="6_months" {% if current_filter == '6_months' %}selected{% endif %}>Last 6 Months</option>
+                    <option value="1_year" {% if current_filter == '1_year' %}selected{% endif %}>Last Year</option>
+                    <option value="all_time" {% if current_filter == 'all_time' %}selected{% endif %}>All Time</option>
+                </select>
+            </form>
+        </div>
+    </div>
+
+    {% if not analytics_data %}
+    <!-- Empty State -->
+    <div class="card border-0 shadow-sm rounded-4 mt-4">
+        <div class="card-body p-5 text-center">
+            <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                <i class="bi bi-graph-down fs-1"></i>
+            </div>
+            <h4 class="fw-bold mb-3">No Data Available</h4>
+            <p class="text-muted mb-0">We couldn't find any carbon footprint calculations for the selected timeframe.</p>
+            {% if current_filter != 'all_time' %}
+            <a href="{{ url_for('analytics.index', filter='all_time') }}" class="btn btn-outline-warning rounded-pill mt-4 px-4">View All Time Data</a>
+            {% else %}
+            <a href="{{ url_for('calculator.index') }}" class="btn btn-outline-success rounded-pill mt-4 px-4">Calculate Now</a>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100 analytics-card">
+                <div class="card-body p-4">
+                    <p class="text-muted fw-semibold mb-1 small text-uppercase">Total Footprint</p>
+                    <h3 class="fw-bold text-danger mb-0">{{ analytics_data.stats.total }} <span class="fs-6 text-muted">kg</span></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100 analytics-card">
+                <div class="card-body p-4">
+                    <p class="text-muted fw-semibold mb-1 small text-uppercase">Average Footprint</p>
+                    <h3 class="fw-bold text-warning mb-0">{{ analytics_data.stats.average }} <span class="fs-6 text-muted">kg</span></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100 analytics-card">
+                <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted fw-semibold mb-1 small text-uppercase">Highest</p>
+                        <h4 class="fw-bold text-dark mb-0">{{ analytics_data.stats.highest }} <span class="fs-6 text-muted">kg</span></h4>
+                    </div>
+                    <div class="text-end border-start ps-3 border-opacity-50 border-secondary">
+                        <p class="text-muted fw-semibold mb-1 small text-uppercase">Lowest</p>
+                        <h4 class="fw-bold text-success mb-0">{{ analytics_data.stats.lowest }} <span class="fs-6 text-muted">kg</span></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100 analytics-card">
+                <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted fw-semibold mb-1 small text-uppercase">Eco Score</p>
+                        <h3 class="fw-bold text-primary mb-0">{{ analytics_data.stats.eco_score }}<span class="fs-6 text-muted">/100</span></h3>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-2 px-3">
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Charts Row -->
+    <div class="row g-4 mb-4">
+        <!-- Trend Line Chart -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+                    <h6 class="fw-bold text-dark mb-0"><i class="bi bi-graph-up me-2 text-primary"></i>Carbon Footprint Trend</h6>
+                </div>
+                <div class="card-body p-4">
+                    <div class="chart-container" style="position: relative; height:300px; width:100%">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Category Doughnut Chart -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+                    <h6 class="fw-bold text-dark mb-0"><i class="bi bi-pie-chart me-2 text-warning"></i>Emission Distribution</h6>
+                </div>
+                <div class="card-body p-4">
+                    <div class="chart-container" style="position: relative; height:300px; width:100%">
+                        <canvas id="categoryDoughnutChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secondary Charts Row -->
+    <div class="row g-4 mb-4">
+        <!-- Monthly Bar Chart -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+                    <h6 class="fw-bold text-dark mb-0"><i class="bi bi-bar-chart me-2 text-info"></i>Monthly Emissions</h6>
+                </div>
+                <div class="card-body p-4">
+                    <div class="chart-container" style="position: relative; height:250px; width:100%">
+                        <canvas id="monthlyBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lifestyle Radar Chart -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+                    <h6 class="fw-bold text-dark mb-0"><i class="bi bi-bullseye me-2 text-danger"></i>Lifestyle Impact Analysis</h6>
+                </div>
+                <div class="card-body p-4">
+                    <div class="chart-container" style="position: relative; height:250px; width:100%">
+                        <canvas id="lifestyleRadarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Automated Insights Section -->
+    <h5 class="fw-bold mb-3 mt-5">Automated Insights</h5>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 insight-card">
+                <div class="card-body p-4 text-center">
+                    <div class="icon-badge bg-danger bg-opacity-10 text-danger rounded-circle mb-3 mx-auto">
+                        <i class="bi bi-arrow-up-circle fs-3"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">Highest Impact</h6>
+                    <h5 class="fw-bold text-dark mb-2">{{ analytics_data.insights.highest_category }}</h5>
+                    <p class="text-muted small mb-0">This category contributed the most to your footprint.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 insight-card">
+                <div class="card-body p-4 text-center">
+                    <div class="icon-badge bg-success bg-opacity-10 text-success rounded-circle mb-3 mx-auto">
+                        <i class="bi bi-arrow-down-circle fs-3"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">Lowest Impact</h6>
+                    <h5 class="fw-bold text-dark mb-2">{{ analytics_data.insights.lowest_category }}</h5>
+                    <p class="text-muted small mb-0">You're doing great in this area! Keep it up.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 insight-card">
+                <div class="card-body p-4 text-center">
+                    <div class="icon-badge {% if analytics_data.insights.trend_value > 0 %}bg-warning text-warning{% else %}bg-info text-info{% endif %} bg-opacity-10 rounded-circle mb-3 mx-auto">
+                        <i class="bi bi-graph-up-arrow fs-3"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">Overall Trend</h6>
+                    <h5 class="fw-bold text-dark mb-2 text-capitalize">{{ analytics_data.insights.trend }}</h5>
+                    <p class="text-muted small mb-0">{{ analytics_data.insights.score_improvement }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Embed JSON Data for Chart.js -->
+    <script id="analyticsData" type="application/json">
+        {{ analytics_data.charts | tojson | safe }}
+    </script>
+    
+    {% endif %}
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+{% endblock %}

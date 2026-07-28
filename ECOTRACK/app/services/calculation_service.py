@@ -162,3 +162,23 @@ class CalculationService:
         except Exception as e:
             logger.error(f"Error fetching calculation: {str(e)}")
             return {"success": False, "error": str(e)}
+
+    @staticmethod
+    def get_latest_calculation(user_id, access_token=None, refresh_token=None):
+        """
+        Retrieves the most recent calculation for the authenticated user.
+        """
+        try:
+            client = get_supabase_client()
+            if access_token and refresh_token:
+                client.auth.set_session(access_token, refresh_token)
+                
+            response = client.table("carbon_calculations").select("*").eq("user_id", user_id).order("created_at", desc=True).limit(1).execute()
+            
+            if response.data and len(response.data) > 0:
+                return {"success": True, "data": response.data[0]}
+            else:
+                return {"success": False, "error": "No calculations found."}
+        except Exception as e:
+            logger.error(f"Error fetching latest calculation: {str(e)}")
+            return {"success": False, "error": str(e)}

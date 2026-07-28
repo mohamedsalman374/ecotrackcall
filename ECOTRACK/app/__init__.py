@@ -10,10 +10,16 @@ def create_app(config_class=Config):
     from app.routes.auth import auth_bp
     from app.routes.dashboard import dashboard_bp
     from app.routes.calculator import calculator_bp
+    from app.routes.ai import ai_bp
+    from app.routes.analytics import analytics_bp
+    from app.routes.history import history_bp
     
     app.register_blueprint(home_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(calculator_bp)
+    app.register_blueprint(ai_bp)
+    app.register_blueprint(analytics_bp)
+    app.register_blueprint(history_bp)
 
     return app

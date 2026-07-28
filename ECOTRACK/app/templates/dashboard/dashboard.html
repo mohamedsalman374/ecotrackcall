@@ -32,17 +32,14 @@
             <a href="{{ url_for('calculator.index') }}" class="sidebar-link {% if request.endpoint and request.endpoint.startswith('calculator') %}active{% endif %}">
                 <i class="bi bi-calculator"></i><span>Calculate Footprint</span>
             </a>
-            <a href="#" class="sidebar-link disabled-link" title="Coming Soon">
+            <a href="{{ url_for('ai.index') }}" class="sidebar-link {% if request.endpoint and request.endpoint.startswith('ai') %}active{% endif %}">
                 <i class="bi bi-robot"></i><span>Recommendations</span>
-                <span class="badge bg-white text-success ms-auto small">Soon</span>
             </a>
-            <a href="#" class="sidebar-link disabled-link" title="Coming Soon">
+            <a href="{{ url_for('analytics.index') }}" class="sidebar-link {% if request.endpoint and request.endpoint.startswith('analytics') %}active{% endif %}">
                 <i class="bi bi-graph-up"></i><span>Analytics</span>
-                <span class="badge bg-white text-success ms-auto small">Soon</span>
             </a>
-            <a href="#" class="sidebar-link disabled-link" title="Coming Soon">
+            <a href="{{ url_for('history.index') }}" class="sidebar-link {% if request.endpoint and request.endpoint.startswith('history') %}active{% endif %}">
                 <i class="bi bi-clock-history"></i><span>History</span>
-                <span class="badge bg-white text-success ms-auto small">Soon</span>
             </a>
         </div>
 
@@ -126,13 +123,13 @@
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>
                                     <p class="text-muted text-uppercase fw-semibold mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">Eco Score</p>
-                                    <h2 class="fw-bold text-success mb-0">0</h2>
+                                    <h2 class="fw-bold text-success mb-0">{% if latest_calc %}{{ latest_calc.eco_score|round|int }}{% else %}0{% endif %}</h2>
                                 </div>
                                 <div class="icon-badge bg-success bg-opacity-10 text-success rounded-3">
                                     <i class="bi bi-star-fill fs-5"></i>
                                 </div>
                             </div>
-                            <p class="text-muted mb-0 small"><i class="bi bi-info-circle me-1"></i>Getting Started</p>
+                            <p class="text-muted mb-0 small"><i class="bi bi-info-circle me-1"></i>{% if latest_calc %}Keep it up!{% else %}Getting Started{% endif %}</p>
                         </div>
                     </div>
                 </div>
@@ -142,13 +139,13 @@
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>
                                     <p class="text-muted text-uppercase fw-semibold mb-1" style="font-size: 0.7rem; letter-spacing: 0.08em;">Total CO₂</p>
-                                    <h2 class="fw-bold text-danger mb-0">0 kg</h2>
+                                    <h2 class="fw-bold text-danger mb-0">{% if latest_calc %}{{ latest_calc.total_emissions|round|int }}{% else %}0{% endif %} kg</h2>
                                 </div>
                                 <div class="icon-badge bg-danger bg-opacity-10 text-danger rounded-3">
                                     <i class="bi bi-cloud-haze2-fill fs-5"></i>
                                 </div>
                             </div>
-                            <p class="text-muted mb-0 small"><i class="bi bi-clock-history me-1"></i>No calculations yet</p>
+                            <p class="text-muted mb-0 small"><i class="bi bi-clock-history me-1"></i>{% if latest_calc %}Based on latest calculation{% else %}No calculations yet{% endif %}</p>
                         </div>
                     </div>
                 </div>
@@ -194,11 +191,15 @@
                             <h6 class="fw-bold mb-0">Carbon Footprint Overview</h6>
                         </div>
                         <div class="card-body p-4 d-flex flex-column align-items-center justify-content-center text-center" style="min-height: 240px;">
+                            {% if latest_calc %}
+                            <canvas id="footprintChart" style="max-height: 200px; width: 100%;"></canvas>
+                            {% else %}
                             <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mb-3" style="width: 72px; height: 72px;">
                                 <i class="bi bi-bar-chart fs-2 text-muted"></i>
                             </div>
                             <h6 class="fw-bold text-dark">No data available</h6>
                             <p class="text-muted mb-0 small">Your carbon footprint data will appear here after you complete your first calculation.</p>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -244,7 +245,7 @@
                             </div>
                             <h6 class="fw-bold mb-2">AI Recommendations</h6>
                             <p class="text-muted small mb-4">Get personalized ways to reduce emissions.</p>
-                            <button class="btn btn-light text-muted rounded-pill px-4 w-100" disabled>Coming Soon</button>
+                            <a href="{{ url_for('ai.index') }}" class="btn btn-outline-primary rounded-pill px-4 w-100">View Recommendations</a>
                         </div>
                     </div>
                 </div>
@@ -256,7 +257,7 @@
                             </div>
                             <h6 class="fw-bold mb-2">Analytics</h6>
                             <p class="text-muted small mb-4">Understand your carbon footprint trends.</p>
-                            <button class="btn btn-light text-muted rounded-pill px-4 w-100" disabled>Coming Soon</button>
+                            <a href="{{ url_for('analytics.index') }}" class="btn btn-outline-warning rounded-pill px-4 w-100">View Analytics</a>
                         </div>
                     </div>
                 </div>
@@ -268,10 +269,17 @@
                     <h6 class="fw-bold mb-0">Recent Activity</h6>
                 </div>
                 <div class="card-body p-5 text-center">
+                    {% if latest_calc %}
+                    <i class="bi bi-check-circle-fill fs-1 text-success mb-3 d-block"></i>
+                    <h6 class="fw-bold text-dark">Calculation Completed!</h6>
+                    <p class="text-muted small mb-4">You successfully completed your carbon footprint calculation.</p>
+                    <a href="{{ url_for('calculator.result', calc_id=latest_calc.id) }}" class="btn btn-success rounded-pill px-4">View Results</a>
+                    {% else %}
                     <i class="bi bi-inbox fs-1 text-muted opacity-50 mb-3 d-block"></i>
                     <h6 class="fw-bold text-dark">No recent calculations</h6>
                     <p class="text-muted small mb-4">Complete your first carbon footprint calculation to start tracking your environmental impact.</p>
                     <button class="btn btn-success rounded-pill px-4" disabled>Calculate Footprint</button>
+                    {% endif %}
                 </div>
             </div>
             {% endblock %}
@@ -297,17 +305,14 @@
                     <i class="bi bi-calculator me-2"></i>
                     Calculate Footprint
                 </a>
-            <a href="#" class="sidebar-link disabled-link">
+            <a href="{{ url_for('ai.index') }}" class="sidebar-link {% if request.endpoint and request.endpoint.startswith('ai') %}active{% endif %}">
                 <i class="bi bi-robot"></i><span>Recommendations</span>
-                <span class="badge bg-white text-success ms-auto small">Soon</span>
             </a>
-            <a href="#" class="sidebar-link disabled-link">
+            <a href="{{ url_for('analytics.index') }}" class="sidebar-link {% if request.endpoint and request.endpoint.startswith('analytics') %}active{% endif %}">
                 <i class="bi bi-graph-up"></i><span>Analytics</span>
-                <span class="badge bg-white text-success ms-auto small">Soon</span>
             </a>
-            <a href="#" class="sidebar-link disabled-link">
+            <a href="{{ url_for('history.index') }}" class="sidebar-link {% if request.endpoint and request.endpoint.startswith('history') %}active{% endif %}">
                 <i class="bi bi-clock-history"></i><span>History</span>
-                <span class="badge bg-white text-success ms-auto small">Soon</span>
             </a>
         </div>
         <div class="sidebar-bottom border-top border-light border-opacity-25 py-3">
@@ -322,6 +327,7 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     // Lock body scroll — only content panel should scroll
     document.body.classList.add('dashboard-page');
@@ -329,5 +335,44 @@
     document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
+
+    {% if latest_calc %}
+    // Render Chart.js
+    const ctx = document.getElementById('footprintChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Transport', 'Electricity', 'Water', 'Food', 'Waste', 'Shopping', 'Travel'],
+                datasets: [{
+                    data: [
+                        {{ latest_calc.transportation_emissions }},
+                        {{ latest_calc.electricity_emissions }},
+                        {{ latest_calc.water_emissions }},
+                        {{ latest_calc.food_emissions }},
+                        {{ latest_calc.waste_emissions }},
+                        {{ latest_calc.shopping_emissions }},
+                        {{ latest_calc.travel_emissions }}
+                    ],
+                    backgroundColor: [
+                        '#198754', '#0dcaf0', '#0d6efd', '#ffc107', '#fd7e14', '#dc3545', '#6610f2'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { boxWidth: 12, usePointStyle: true, font: { size: 10 } }
+                    }
+                }
+            }
+        });
+    }
+    {% endif %}
 </script>
 {% endblock %}

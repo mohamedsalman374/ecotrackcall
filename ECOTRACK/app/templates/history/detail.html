@@ -1,0 +1,147 @@
+{% extends 'dashboard/dashboard.html' %}
+
+{% block title %}Calculation Details - EcoTrack{% endblock %}
+
+{% block extra_css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/history.css') }}">
+<style type="text/css" media="print">
+    body * { visibility: hidden; }
+    #printableArea, #printableArea * { visibility: visible; }
+    #printableArea { position: absolute; left: 0; top: 0; width: 100%; }
+    .no-print { display: none !important; }
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold mb-0"><i class="bi bi-file-earmark-text text-primary me-2"></i>Calculation Details</h2>
+            <p class="text-muted">Detailed view of your carbon footprint calculation.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('history.index') }}" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-arrow-left me-1"></i> Back to History
+            </a>
+            <button onclick="window.print()" class="btn btn-primary rounded-pill px-4">
+                <i class="bi bi-printer me-1"></i> Print
+            </button>
+        </div>
+    </div>
+
+    <div id="printableArea">
+        <div class="row g-4">
+            <!-- Main Details -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
+                        <h6 class="fw-bold text-dark mb-0">Emissions Breakdown</h6>
+                        <span class="badge bg-light text-secondary">{{ calc.created_at[:10] }} {{ calc.created_at[11:16] }}</span>
+                    </div>
+                    <div class="card-body p-4">
+                        
+                        <div class="row g-4 mb-4">
+                            <div class="col-sm-6">
+                                <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
+                                    <div><i class="bi bi-car-front text-success me-2"></i> <span class="text-muted fw-medium">Transportation</span></div>
+                                    <div class="fw-bold">{{ calc.transportation_emissions|round(1) }} kg</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
+                                    <div><i class="bi bi-lightning-charge text-warning me-2"></i> <span class="text-muted fw-medium">Electricity</span></div>
+                                    <div class="fw-bold">{{ calc.electricity_emissions|round(1) }} kg</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
+                                    <div><i class="bi bi-droplet text-info me-2"></i> <span class="text-muted fw-medium">Water</span></div>
+                                    <div class="fw-bold">{{ calc.water_emissions|round(1) }} kg</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
+                                    <div><i class="bi bi-egg-fried text-danger me-2"></i> <span class="text-muted fw-medium">Food & Diet</span></div>
+                                    <div class="fw-bold">{{ calc.food_emissions|round(1) }} kg</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
+                                    <div><i class="bi bi-trash" style="color: #fd7e14;"></i> <span class="text-muted fw-medium ms-2">Waste</span></div>
+                                    <div class="fw-bold">{{ calc.waste_emissions|round(1) }} kg</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
+                                    <div><i class="bi bi-bag text-secondary me-2"></i> <span class="text-muted fw-medium">Shopping</span></div>
+                                    <div class="fw-bold">{{ calc.shopping_emissions|round(1) }} kg</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
+                                    <div><i class="bi bi-airplane text-secondary me-2"></i> <span class="text-muted fw-medium">Travel</span></div>
+                                    <div class="fw-bold">{{ calc.travel_emissions|round(1) }} kg</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <!-- AI Recommendation Summary (If available) -->
+                {% if ai_rec %}
+                <div class="card border-0 shadow-sm rounded-4 bg-primary bg-opacity-10 mb-4 border border-primary border-opacity-25">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-robot fs-3 text-primary me-3"></i>
+                            <h5 class="fw-bold text-primary mb-0">AI Eco-Coach Insights</h5>
+                        </div>
+                        <p class="mb-4 text-dark">{{ ai_rec.response.overall_analysis }}</p>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="bg-white p-3 rounded-3 shadow-sm h-100">
+                                    <h6 class="fw-bold text-success mb-2"><i class="bi bi-flag-fill me-1"></i> Goal</h6>
+                                    <p class="small text-muted mb-0">{{ ai_rec.response.monthly_goal }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="bg-white p-3 rounded-3 shadow-sm h-100">
+                                    <h6 class="fw-bold text-warning mb-2"><i class="bi bi-lightning-fill me-1"></i> Challenge</h6>
+                                    <p class="small text-muted mb-0">{{ ai_rec.response.green_challenge }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+
+            <!-- Sidebar Summary -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 text-center mb-4">
+                    <div class="card-body p-5">
+                        <h6 class="text-muted text-uppercase fw-bold mb-3">Total Footprint</h6>
+                        <div class="d-inline-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger rounded-circle mb-3" style="width: 120px; height: 120px;">
+                            <h2 class="fw-bold mb-0">{{ calc.total_emissions|round(1) }}<br><span class="fs-6 fw-normal">kg</span></h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 text-center">
+                    <div class="card-body p-5">
+                        <h6 class="text-muted text-uppercase fw-bold mb-3">Eco Score</h6>
+                        <div class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded-circle mb-3" style="width: 120px; height: 120px;">
+                            <h1 class="fw-bold mb-0">{{ calc.eco_score }}</h1>
+                        </div>
+                        <p class="text-muted small mb-0">Out of 100</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+.analytics-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.analytics-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important;
+}
+
+.analytics-card:nth-child(1) { border-left-color: var(--bs-danger); }
+.analytics-card:nth-child(2) { border-left-color: var(--bs-warning); }
+.analytics-card:nth-child(3) { border-left-color: var(--bs-dark); }
+.analytics-card:nth-child(4) { border-left-color: var(--bs-primary); }
+
+.insight-card {
+    transition: transform 0.3s ease;
+    background: linear-gradient(to bottom right, #ffffff, #f8f9fa);
+}
+
+.insight-card:hover {
+    transform: translateY(-3px);
+}
+
+.icon-badge {
+    width: 60px;
+    height: 60px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}

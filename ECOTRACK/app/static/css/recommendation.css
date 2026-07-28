@@ -1,0 +1,38 @@
+.recommendation-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.category-card {
+    transition: transform 0.3s ease;
+    border-top: 4px solid transparent;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important;
+}
+
+.category-card:nth-child(1) { border-top-color: var(--bs-success); }
+.category-card:nth-child(2) { border-top-color: var(--bs-warning); }
+.category-card:nth-child(3) { border-top-color: var(--bs-danger); }
+.category-card:nth-child(4) { border-top-color: var(--bs-info); }
+.category-card:nth-child(5) { border-top-color: #fd7e14; }
+.category-card:nth-child(6) { border-top-color: var(--bs-secondary); }
+
+.goal-card {
+    background: linear-gradient(135deg, rgba(25, 135, 84, 0.05) 0%, rgba(25, 135, 84, 0.1) 100%);
+    border-left: 4px solid var(--bs-success) !important;
+}
+
+.challenge-card {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.05) 0%, rgba(255, 193, 7, 0.1) 100%);
+    border-left: 4px solid var(--bs-warning) !important;
+}
+
+.icon-badge {
+    width: 60px;
+    height: 60px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}

@@ -1,0 +1,224 @@
+{% extends 'dashboard/dashboard.html' %}
+
+{% block title %}AI Recommendations - EcoTrack{% endblock %}
+
+{% block extra_css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/recommendation.css') }}">
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold mb-0"><i class="bi bi-robot text-primary me-2"></i>AI Eco-Coach</h2>
+            <p class="text-muted">Personalized insights based on your latest footprint calculation.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-arrow-left me-1"></i> Dashboard
+            </a>
+            {% if latest_calc %}
+            <form action="{{ url_for('ai.generate') }}" method="POST" id="generateForm" class="d-inline">
+                <button type="submit" class="btn btn-primary rounded-pill px-4" id="generateBtn">
+                    <i class="bi bi-magic me-1"></i> Generate New Insights
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="text-center py-5 d-none">
+        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <h5 class="fw-bold text-dark">Analyzing your footprint...</h5>
+        <p class="text-muted">Our AI Eco-Coach is generating personalized recommendations based on your {%- if latest_calc %} {{ latest_calc.total_emissions|round|int }} kg CO2e {%- else %} recent {%- endif %} footprint.</p>
+    </div>
+
+    <!-- Content Area -->
+    <div id="contentArea">
+        {% if latest_rec %}
+        {% set ai_data = latest_rec.response %}
+        
+        <!-- Top Summary Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4 h-100 recommendation-card">
+                    <div class="card-body p-4 p-md-5">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-badge bg-primary bg-opacity-10 text-primary rounded-circle me-3 p-3">
+                                <i class="bi bi-chat-quote-fill fs-4"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0">Overall Analysis</h5>
+                        </div>
+                        <p class="lead mb-0 text-dark">{{ ai_data.overall_analysis }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100 bg-primary text-white">
+                    <div class="card-body p-4 d-flex flex-column justify-content-center text-center">
+                        <h6 class="fw-bold opacity-75 text-uppercase mb-2">Potential Reduction</h6>
+                        <h1 class="fw-bold display-4 mb-2">-{{ ai_data.estimated_reduction_kg }} <span class="fs-4">kg</span></h1>
+                        <p class="mb-0 opacity-75 small">CO₂e per month if you follow these recommendations.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Goals and Challenges -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 h-100 goal-card">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold text-success mb-3"><i class="bi bi-flag-fill me-2"></i>Monthly Goal</h6>
+                        <p class="mb-0 fw-medium fs-5">{{ ai_data.monthly_goal }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 h-100 challenge-card">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold text-warning mb-3"><i class="bi bi-lightning-fill me-2"></i>Weekly Challenge</h6>
+                        <p class="mb-0 fw-medium fs-5">{{ ai_data.green_challenge }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Recommendations -->
+        <h5 class="fw-bold mb-3 mt-5">Actionable Tips by Category</h5>
+        <div class="row g-4">
+            
+            <!-- Transportation -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100 category-card">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+                        <h6 class="fw-bold text-success"><i class="bi bi-car-front me-2"></i>Transportation</h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <ul class="list-unstyled mb-0">
+                            {% for tip in ai_data.transportation_tips %}
+                            <li class="mb-3 d-flex"><i class="bi bi-check2-circle text-success me-2 fs-5"></i> <span>{{ tip }}</span></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Electricity -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100 category-card">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+                        <h6 class="fw-bold text-warning"><i class="bi bi-lightning-charge me-2"></i>Electricity</h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <ul class="list-unstyled mb-0">
+                            {% for tip in ai_data.electricity_tips %}
+                            <li class="mb-3 d-flex"><i class="bi bi-check2-circle text-warning me-2 fs-5"></i> <span>{{ tip }}</span></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Food -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100 category-card">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+                        <h6 class="fw-bold text-danger"><i class="bi bi-egg-fried me-2"></i>Food & Diet</h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <ul class="list-unstyled mb-0">
+                            {% for tip in ai_data.food_tips %}
+                            <li class="mb-3 d-flex"><i class="bi bi-check2-circle text-danger me-2 fs-5"></i> <span>{{ tip }}</span></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Water -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100 category-card">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+                        <h6 class="fw-bold text-info"><i class="bi bi-droplet me-2"></i>Water</h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <ul class="list-unstyled mb-0">
+                            {% for tip in ai_data.water_tips %}
+                            <li class="mb-3 d-flex"><i class="bi bi-check2-circle text-info me-2 fs-5"></i> <span>{{ tip }}</span></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Waste -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100 category-card">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+                        <h6 class="fw-bold" style="color: #fd7e14;"><i class="bi bi-trash me-2"></i>Waste</h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <ul class="list-unstyled mb-0">
+                            {% for tip in ai_data.waste_tips %}
+                            <li class="mb-3 d-flex"><i class="bi bi-check2-circle me-2 fs-5" style="color: #fd7e14;"></i> <span>{{ tip }}</span></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shopping & Travel -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100 category-card">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+                        <h6 class="fw-bold text-secondary"><i class="bi bi-bag me-2"></i>Shopping & Travel</h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <ul class="list-unstyled mb-0">
+                            {% for tip in ai_data.shopping_tips %}
+                            <li class="mb-3 d-flex"><i class="bi bi-check2-circle text-secondary me-2 fs-5"></i> <span>{{ tip }}</span></li>
+                            {% endfor %}
+                            {% for tip in ai_data.travel_tips %}
+                            <li class="mb-3 d-flex"><i class="bi bi-check2-circle text-secondary me-2 fs-5"></i> <span>{{ tip }}</span></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Motivational Message -->
+        <div class="mt-5 text-center p-4">
+            <i class="bi bi-quote fs-1 text-muted opacity-25"></i>
+            <h4 class="fw-medium text-dark fst-italic mt-2 mb-0">"{{ ai_data.motivational_message }}"</h4>
+        </div>
+        
+        {% else %}
+        <!-- Empty State -->
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-5 text-center">
+                <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 100px; height: 100px;">
+                    <i class="bi bi-robot fs-1"></i>
+                </div>
+                <h3 class="fw-bold mb-3">No Recommendations Yet</h3>
+                <p class="text-muted lead mb-4 max-w-md mx-auto">Generate your first AI-powered eco-recommendations based on your recent carbon footprint calculation.</p>
+                
+                <form action="{{ url_for('ai.generate') }}" method="POST" id="emptyGenerateForm">
+                    <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5" id="emptyGenerateBtn">
+                        <i class="bi bi-magic me-2"></i> Generate Recommendations
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/recommendation.js') }}"></script>
+{% endblock %}

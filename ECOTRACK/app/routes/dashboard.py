@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash
 from app.services.auth_service import AuthService
+from app.services.calculation_service import CalculationService
 from app.utils.auth import login_required
 
 dashboard_bp = Blueprint('dashboard', __name__)
@@ -19,4 +20,12 @@ def dashboard():
         
     profile = profile_response.get('profile', {})
     
-    return render_template('dashboard/dashboard.html', profile=profile)
+    # Fetch latest calculation
+    latest_calc_response = CalculationService.get_latest_calculation(
+        user_session.get('id'), 
+        user_session.get('access_token'), 
+        user_session.get('refresh_token')
+    )
+    latest_calc = latest_calc_response.get('data') if latest_calc_response.get('success') else None
+    
+    return render_template('dashboard/dashboard.html', profile=profile, latest_calc=latest_calc)
