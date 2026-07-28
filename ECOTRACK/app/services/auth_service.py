@@ -124,3 +124,24 @@ class AuthService:
         except Exception as e:
             logger.error(f"ensure_user_profile Error: {str(e)}")
 
+    @staticmethod
+    def update_password(access_token, new_password):
+        """
+        Updates the user's password using the provided access token.
+        """
+        try:
+            client = get_supabase_client()
+            # Set the session using the access token so we can update the user
+            client.auth.set_session(access_token, "") # Refresh token is not strictly needed for just updating password if token is valid
+            
+            auth_response = client.auth.update_user({
+                "password": new_password
+            })
+            
+            return {"success": True, "message": "Password updated successfully."}
+        except AuthApiError as e:
+            logger.error(f"Update Password AuthApiError: {e.message}")
+            return {"success": False, "error": e.message}
+        except Exception as e:
+            logger.error(f"Update Password Error: {str(e)}")
+            return {"success": False, "error": "An unexpected error occurred while updating the password."}

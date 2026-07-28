@@ -43,7 +43,7 @@ def register():
         
         if result['success']:
             flash(result['message'], 'success')
-            return redirect(url_for('auth.login'))
+            return redirect(url_for('auth.verify_email'))
         else:
             flash(result['error'], 'danger')
             
@@ -57,6 +57,7 @@ def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
+        remember = request.form.get('remember')
         
         if not email or not password:
             flash('Email and password are required.', 'danger')
@@ -80,6 +81,9 @@ def login():
                 # Profile missing (e.g., created before bug fix) — auto-create it now
                 AuthService.ensure_user_profile(user.id, user.email)
                 session['user']['full_name'] = user.email.split('@')[0]  # Use email prefix as fallback name
+            
+            if remember:
+                session.permanent = True
             
             flash('Successfully logged in!', 'success')
             return redirect(url_for('home.dashboard'))
@@ -115,13 +119,39 @@ def forgot_password():
             
     return render_template('auth/forgot_password.html')
 
-# Note: The reset password link from Supabase email will go to a specific URL configured in Supabase.
-# It will have a hash fragment (or query parameters if using PKCE). 
-# This requires frontend JS or special handling to update the password.
 @auth_bp.route('/reset-password', methods=['GET', 'POST'])
 def reset_password():
-    # If using PKCE, the token might be in the URL or session
-    # For now, we will render a template that handles the reset via JS using supabase-js, 
-    # or if we are using purely server-side, it's more complex because the access token is in the URL hash.
-    # We will just render the template for now.
+    if request.method == 'POST':
+        access_token = request.form.get('access_token')
+        new_password = request.form.get('password')
+        confirm_password = request.form.get('confirmPassword')
+        
+        if not access_token:
+            flash('Invalid or missing reset token. Please use the link sent to your email.', 'danger')
+            return render_template('auth/reset_password.html')
+            
+        if not new_password or not confirm_password:
+            flash('Both password fields are required.', 'danger')
+            return render_template('auth/reset_password.html')
+            
+        if new_password != confirm_password:
+            flash('Passwords do not match.', 'danger')
+            return render_template('auth/reset_password.html')
+            
+        if len(new_password) < 8:
+            flash('Password must be at least 8 characters long.', 'danger')
+            return render_template('auth/reset_password.html')
+            
+        result = AuthService.update_password(access_token, new_password)
+        
+        if result['success']:
+            flash('Your password has been successfully reset. Please log in.', 'success')
+            return redirect(url_for('auth.login'))
+        else:
+            flash(result['error'], 'danger')
+            
     return render_template('auth/reset_password.html')
+
+@auth_bp.route('/verify-email')
+def verify_email():
+    return render_template('auth/verify_email.html')
