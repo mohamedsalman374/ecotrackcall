@@ -1,12 +1,12 @@
 # EcoTrack 🌍
 
-**EcoTrack** is an AI-powered Carbon Footprint Calculator and Eco Recommendation System. It helps users track their daily emissions, generates personalized sustainability recommendations using Google Gemini AI, and provides detailed analytics to encourage a greener lifestyle.
+**EcoTrack** is an AI-powered Carbon Footprint Calculator and Eco Recommendation System. It helps users track their daily emissions, generates personalized sustainability recommendations using Groq AI, and provides detailed analytics to encourage a greener lifestyle.
 
 ## 🚀 Features
 
 - **Secure Authentication**: Powered by Supabase (Login, Register, Forgot Password, Role-Based Access Control).
 - **Carbon Footprint Calculator**: Accurately calculates emissions based on Transport, Energy, Diet, and Shopping habits.
-- **AI Eco Recommendations**: Leverages Google Gemini API to analyze user emissions and provide actionable, personalized advice to reduce their footprint.
+- **AI Eco Recommendations**: Leverages Groq API to analyze user emissions and provide actionable, personalized advice to reduce their footprint.
 - **Analytics Dashboard**: Interactive charts (Chart.js) to visualize carbon emissions over time.
 - **History & Profiling**: Track past calculations, update profile pictures (stored in Supabase Storage buckets), and monitor progress.
 - **Feedback System**: Report bugs, suggest features, and track support ticket statuses with image attachments.
@@ -23,7 +23,7 @@
 - Python 3.10
 - Flask (Application Factory & Blueprints architecture)
 - `fpdf2` (PDF Generation)
-- `google-generativeai` (Gemini API SDK)
+- `groq` (Groq API SDK)
 
 **Database & Auth:**
 - Supabase PostgreSQL
@@ -61,7 +61,7 @@ Ensure you provide:
 - `SECRET_KEY`: A random string for Flask sessions.
 - `SUPABASE_URL` & `SUPABASE_KEY`: From your Supabase project settings.
 - `SUPABASE_SERVICE_ROLE_KEY`: Required for the Admin Panel to bypass RLS.
-- `GEMINI_API_KEY`: From Google AI Studio.
+- `GROQ_API_KEY`: From Groq Developer Console.
 
 ### 5. Database Setup (Supabase)
 Navigate to your Supabase SQL Editor and execute the complete SQL script found in `schema.sql`. This will:

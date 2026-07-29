@@ -2,7 +2,7 @@ class PromptService:
     @staticmethod
     def generate_recommendation_prompt(calculation_data, profile):
         """
-        Creates a structured prompt for Google Gemini based on the user's carbon calculation.
+        Creates a structured prompt for Groq AI based on the user's carbon calculation.
         """
         eco_score = calculation_data.get('eco_score', 0)
         total_co2 = calculation_data.get('total_emissions', 0)

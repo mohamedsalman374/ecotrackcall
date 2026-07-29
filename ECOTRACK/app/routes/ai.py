@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, session, redirect, url_for, flash,
 from app.utils.auth import login_required
 from app.services.calculation_service import CalculationService
 from app.services.auth_service import AuthService
-from app.services.gemini_service import GeminiService
+from app.services.groq_service import GroqService
 
 ai_bp = Blueprint('ai', __name__)
 
@@ -28,7 +28,7 @@ def index():
         return redirect(url_for('calculator.index'))
         
     # Get latest recommendation
-    rec_response = GeminiService.get_latest_recommendation(user_id, access_token, refresh_token)
+    rec_response = GroqService.get_latest_recommendation(user_id, access_token, refresh_token)
     latest_rec = rec_response.get('data') if rec_response.get('success') else None
     
     return render_template('ai/recommendation.html', profile=profile, latest_calc=latest_calc, latest_rec=latest_rec)
@@ -55,7 +55,7 @@ def generate():
         return redirect(url_for('calculator.index'))
         
     # Generate new recommendation
-    result = GeminiService.generate_recommendation(user_id, latest_calc, profile, access_token, refresh_token)
+    result = GroqService.generate_recommendation(user_id, latest_calc, profile, access_token, refresh_token)
     
     if result.get("success"):
         flash("AI Recommendations successfully generated!", "success")

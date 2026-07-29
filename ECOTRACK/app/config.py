@@ -22,5 +22,5 @@ class Config:
     FIREBASE_MESSAGING_SENDER_ID = os.environ.get('FIREBASE_MESSAGING_SENDER_ID')
     FIREBASE_APP_ID = os.environ.get('FIREBASE_APP_ID')
     
-    # Gemini Configuration
-    GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+    # Groq Configuration
+    GROQ_API_KEY = os.environ.get('GROQ_API_KEY')
