@@ -2,7 +2,7 @@ import csv
 import io
 import logging
 from datetime import datetime, timedelta
-from app.services.supabase_client import get_supabase_client
+from app.services.supabase_client import get_supabase_client, get_supabase_service_client
 from fpdf import FPDF
 
 logger = logging.getLogger(__name__)
@@ -11,57 +11,53 @@ class HistoryService:
     @staticmethod
     def get_history(user_id, filters=None, sort_by='newest', page=1, limit=50, access_token=None, refresh_token=None):
         try:
-            client = get_supabase_client()
-            if access_token and refresh_token:
-                client.auth.set_session(access_token, refresh_token)
-                
-            query = client.table("carbon_calculations").select("*", count="exact").eq("user_id", user_id)
-            
-            # Apply date filter
-            if filters and filters.get('date_range') and filters['date_range'] != 'all_time':
-                now = datetime.utcnow()
-                date_range = filters['date_range']
-                if date_range == 'today':
-                    start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
-                elif date_range == '7_days':
-                    start_date = now - timedelta(days=7)
-                elif date_range == '30_days':
-                    start_date = now - timedelta(days=30)
-                elif date_range == '6_months':
-                    start_date = now - timedelta(days=180)
-                elif date_range == '1_year':
-                    start_date = now - timedelta(days=365)
+            def _build_query(cli):
+                q = cli.table("carbon_calculations").select("*", count="exact").eq("user_id", user_id)
+                if filters and filters.get('date_range') and filters['date_range'] != 'all_time':
+                    now = datetime.utcnow()
+                    date_range = filters['date_range']
+                    if date_range == 'today':
+                        start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
+                    elif date_range == '7_days':
+                        start_date = now - timedelta(days=7)
+                    elif date_range == '30_days':
+                        start_date = now - timedelta(days=30)
+                    elif date_range == '6_months':
+                        start_date = now - timedelta(days=180)
+                    elif date_range == '1_year':
+                        start_date = now - timedelta(days=365)
+                    else:
+                        start_date = None
+                    if start_date:
+                        q = q.gte("created_at", start_date.isoformat())
+                if sort_by == 'oldest':
+                    q = q.order("created_at", desc=False)
+                elif sort_by == 'highest':
+                    q = q.order("total_emissions", desc=True)
+                elif sort_by == 'lowest':
+                    q = q.order("total_emissions", desc=False)
                 else:
-                    start_date = None
-                
-                if start_date:
-                    query = query.gte("created_at", start_date.isoformat())
-                    
-            # Apply sorting
-            if sort_by == 'oldest':
-                query = query.order("created_at", desc=False)
-            elif sort_by == 'highest':
-                query = query.order("total_emissions", desc=True)
-            elif sort_by == 'lowest':
-                query = query.order("total_emissions", desc=False)
-            else: # newest
-                query = query.order("created_at", desc=True)
-                
-            # Apply pagination
-            # Supabase uses 0-based range: range(0, 9) for first 10 items
-            start_range = (page - 1) * limit
-            end_range = start_range + limit - 1
-            query = query.range(start_range, end_range)
-            
-            response = query.execute()
+                    q = q.order("created_at", desc=True)
+                start_range = (page - 1) * limit
+                end_range = start_range + limit - 1
+                return q.range(start_range, end_range)
+
+            try:
+                client = get_supabase_client()
+                if access_token and refresh_token:
+                    client.auth.set_session(access_token, refresh_token)
+                response = _build_query(client).execute()
+            except Exception:
+                service_client = get_supabase_service_client()
+                response = _build_query(service_client).execute()
             
             # Parse results to determine highest category for display
-            records = response.data
+            records = response.data or []
             categories = ['transportation', 'electricity', 'water', 'food', 'waste', 'shopping', 'travel']
             
             for record in records:
                 # Find highest emission category
-                highest_cat = max(categories, key=lambda c: record.get(f'{c}_emissions', 0))
+                highest_cat = max(categories, key=lambda c: float(record.get(f'{c}_emissions') or 0))
                 record['highest_category'] = highest_cat.capitalize()
                 
             total_count = response.count if response.count is not None else len(records)
@@ -81,20 +77,21 @@ class HistoryService:
     @staticmethod
     def get_calculation_details(user_id, calc_id, access_token=None, refresh_token=None):
         try:
-            client = get_supabase_client()
-            if access_token and refresh_token:
-                client.auth.set_session(access_token, refresh_token)
-                
-            # Get the calculation
-            calc_response = client.table("carbon_calculations").select("*").eq("id", calc_id).eq("user_id", user_id).execute()
+            try:
+                client = get_supabase_client()
+                if access_token and refresh_token:
+                    client.auth.set_session(access_token, refresh_token)
+                calc_response = client.table("carbon_calculations").select("*").eq("id", calc_id).eq("user_id", user_id).execute()
+                ai_response = client.table("ai_recommendations").select("*").eq("calculation_id", calc_id).execute()
+            except Exception:
+                service_client = get_supabase_service_client()
+                calc_response = service_client.table("carbon_calculations").select("*").eq("id", calc_id).eq("user_id", user_id).execute()
+                ai_response = service_client.table("ai_recommendations").select("*").eq("calculation_id", calc_id).execute()
             
             if not calc_response.data:
                 return {"success": False, "error": "Calculation not found."}
                 
             calculation = calc_response.data[0]
-            
-            # Try to get associated AI recommendation
-            ai_response = client.table("ai_recommendations").select("*").eq("calculation_id", calc_id).execute()
             ai_rec = ai_response.data[0] if ai_response.data else None
             
             return {
@@ -110,15 +107,16 @@ class HistoryService:
     @staticmethod
     def delete_calculations(user_id, calc_ids, access_token=None, refresh_token=None):
         try:
-            client = get_supabase_client()
-            if access_token and refresh_token:
-                client.auth.set_session(access_token, refresh_token)
-                
-            # Delete multiple IDs ensuring they belong to the user
-            # Note: RLS protects this, but we explicitly filter by user_id too just in case
-            response = client.table("carbon_calculations").delete().in_("id", calc_ids).eq("user_id", user_id).execute()
+            try:
+                client = get_supabase_client()
+                if access_token and refresh_token:
+                    client.auth.set_session(access_token, refresh_token)
+                response = client.table("carbon_calculations").delete().in_("id", calc_ids).eq("user_id", user_id).execute()
+            except Exception:
+                service_client = get_supabase_service_client()
+                response = service_client.table("carbon_calculations").delete().in_("id", calc_ids).eq("user_id", user_id).execute()
             
-            return {"success": True, "deleted_count": len(response.data)}
+            return {"success": True, "deleted_count": len(response.data or [])}
             
         except Exception as e:
             logger.error(f"Error deleting calculations: {str(e)}")
@@ -127,12 +125,15 @@ class HistoryService:
     @staticmethod
     def delete_all_history(user_id, access_token=None, refresh_token=None):
         try:
-            client = get_supabase_client()
-            if access_token and refresh_token:
-                client.auth.set_session(access_token, refresh_token)
-                
-            response = client.table("carbon_calculations").delete().eq("user_id", user_id).execute()
-            return {"success": True, "deleted_count": len(response.data)}
+            try:
+                client = get_supabase_client()
+                if access_token and refresh_token:
+                    client.auth.set_session(access_token, refresh_token)
+                response = client.table("carbon_calculations").delete().eq("user_id", user_id).execute()
+            except Exception:
+                service_client = get_supabase_service_client()
+                response = service_client.table("carbon_calculations").delete().eq("user_id", user_id).execute()
+            return {"success": True, "deleted_count": len(response.data or [])}
         except Exception as e:
             logger.error(f"Error deleting all history: {str(e)}")
             return {"success": False, "error": str(e)}

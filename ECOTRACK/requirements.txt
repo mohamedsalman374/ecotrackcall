@@ -1,6 +1,8 @@
-# EcoTrack - Supabase Authentication & Database Foundation Dependencies
+# EcoTrack - Full Application Dependencies
 Flask==3.0.0
 python-dotenv==1.0.0
 supabase==2.3.0
 email-validator==2.1.0.post1
 gunicorn==21.2.0
+groq==0.9.0
+fpdf2==2.7.9

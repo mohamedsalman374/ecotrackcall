@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timedelta
-from app.services.supabase_client import get_supabase_client
+from app.services.supabase_client import get_supabase_client, get_supabase_service_client
 
 logger = logging.getLogger(__name__)
 
@@ -8,31 +8,33 @@ class AnalyticsService:
     @staticmethod
     def get_user_analytics(user_id, filter_type='all_time', access_token=None, refresh_token=None):
         try:
-            client = get_supabase_client()
-            if access_token and refresh_token:
-                client.auth.set_session(access_token, refresh_token)
-                
-            query = client.table("carbon_calculations").select("*").eq("user_id", user_id).order("created_at", desc=False)
-            
-            # Apply date filters
-            if filter_type != 'all_time':
-                now = datetime.utcnow()
-                if filter_type == 'today':
-                    start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
-                elif filter_type == '7_days':
-                    start_date = now - timedelta(days=7)
-                elif filter_type == '30_days':
-                    start_date = now - timedelta(days=30)
-                elif filter_type == '6_months':
-                    start_date = now - timedelta(days=180)
-                elif filter_type == '1_year':
-                    start_date = now - timedelta(days=365)
-                else:
-                    start_date = now - timedelta(days=30) # default fallback
-                
-                query = query.gte("created_at", start_date.isoformat())
-            
-            response = query.execute()
+            def _build_query(cli):
+                q = cli.table("carbon_calculations").select("*").eq("user_id", user_id).order("created_at", desc=False)
+                if filter_type != 'all_time':
+                    now = datetime.utcnow()
+                    if filter_type == 'today':
+                        start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
+                    elif filter_type == '7_days':
+                        start_date = now - timedelta(days=7)
+                    elif filter_type == '30_days':
+                        start_date = now - timedelta(days=30)
+                    elif filter_type == '6_months':
+                        start_date = now - timedelta(days=180)
+                    elif filter_type == '1_year':
+                        start_date = now - timedelta(days=365)
+                    else:
+                        start_date = now - timedelta(days=30)
+                    q = q.gte("created_at", start_date.isoformat())
+                return q
+
+            try:
+                client = get_supabase_client()
+                if access_token and refresh_token:
+                    client.auth.set_session(access_token, refresh_token)
+                response = _build_query(client).execute()
+            except Exception:
+                service_client = get_supabase_service_client()
+                response = _build_query(service_client).execute()
             
             if not response.data:
                 return {"success": True, "data": None, "message": "No calculations found for the selected period."}
@@ -40,20 +42,20 @@ class AnalyticsService:
             records = response.data
             
             # Aggregate stats
-            total_c = sum(r['total_emissions'] for r in records)
+            total_c = sum(float(r.get('total_emissions') or 0) for r in records)
             avg_c = total_c / len(records)
-            highest_c = max(r['total_emissions'] for r in records)
-            lowest_c = min(r['total_emissions'] for r in records)
+            highest_c = max(float(r.get('total_emissions') or 0) for r in records)
+            lowest_c = min(float(r.get('total_emissions') or 0) for r in records)
             total_calcs = len(records)
-            current_eco_score = records[-1]['eco_score'] if records else 0
+            current_eco_score = float(records[-1].get('eco_score') or 0) if records else 0
             
             # Category totals for pie/doughnut/radar
             categories = ['transportation', 'electricity', 'water', 'food', 'waste', 'shopping', 'travel']
-            category_totals = {cat: 0 for cat in categories}
+            category_totals = {cat: 0.0 for cat in categories}
             
             for r in records:
                 for cat in categories:
-                    category_totals[cat] += r.get(f'{cat}_emissions', 0)
+                    category_totals[cat] += float(r.get(f'{cat}_emissions') or 0)
             
             category_labels = ['Transport', 'Electricity', 'Water', 'Food', 'Waste', 'Shopping', 'Travel']
             category_data = [category_totals[cat] for cat in categories]

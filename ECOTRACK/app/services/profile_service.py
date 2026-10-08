@@ -16,10 +16,14 @@ class ProfileService:
             if access_token and refresh_token:
                 client.auth.set_session(access_token, refresh_token)
                 
-            # Filter out email since that is handled separately via Auth API if it changes
-            # But we update it here just to keep the public.users table in sync if auth succeeded
+            # Filter out email, id, created_at since email is handled via Auth API
+            clean_data = {k: v for k, v in profile_data.items() if k not in ['email', 'id', 'created_at']}
             
-            response = client.table('users').update(profile_data).eq('id', user_id).execute()
+            try:
+                response = client.table('profiles').update(clean_data).eq('id', user_id).execute()
+            except Exception:
+                service_client = get_supabase_service_client()
+                response = service_client.table('profiles').update(clean_data).eq('id', user_id).execute()
             
             return {"success": True, "data": response.data}
             

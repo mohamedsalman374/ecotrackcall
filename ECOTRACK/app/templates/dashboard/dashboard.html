@@ -21,7 +21,9 @@
     <nav class="sidebar-nav bg-success text-white d-none d-lg-flex flex-column shadow-sm" id="sidebar-wrapper">
         <!-- Brand -->
         <div class="sidebar-brand text-center py-4 border-bottom border-light border-opacity-25">
-            <span class="fs-4 fw-bold"><i class="bi bi-globe-americas me-2"></i>EcoTrack</span>
+            <a href="{{ url_for('home.index') }}" class="text-white text-decoration-none fs-4 fw-bold">
+                <i class="bi bi-globe-americas me-2"></i>EcoTrack
+            </a>
         </div>
 
         <!-- Navigation Links -->
@@ -45,6 +47,11 @@
 
         <!-- Bottom Links -->
         <div class="sidebar-bottom border-top border-light border-opacity-25 py-3">
+            {% if session.get('user', {}).get('role') == 'admin' or profile.get('role') == 'admin' %}
+            <a href="{{ url_for('admin.index') }}" class="sidebar-link text-warning {% if request.endpoint and request.endpoint.startswith('admin') %}active{% endif %}">
+                <i class="bi bi-shield-lock"></i><span>Admin Panel</span>
+            </a>
+            {% endif %}
             <a href="{{ url_for('feedback.history') }}" class="sidebar-link {% if request.endpoint and request.endpoint.startswith('feedback') %}active{% endif %}">
                 <i class="bi bi-chat-left-heart"></i><span>Feedback</span>
             </a>
@@ -318,6 +325,11 @@
             </a>
         </div>
         <div class="sidebar-bottom border-top border-light border-opacity-25 py-3">
+            {% if session.get('user', {}).get('role') == 'admin' or profile.get('role') == 'admin' %}
+            <a href="{{ url_for('admin.index') }}" class="sidebar-link text-warning {% if request.endpoint and request.endpoint.startswith('admin') %}active{% endif %}">
+                <i class="bi bi-shield-lock"></i><span>Admin Panel</span>
+            </a>
+            {% endif %}
             <a href="{{ url_for('feedback.history') }}" class="sidebar-link {% if request.endpoint and request.endpoint.startswith('feedback') %}active{% endif %}">
                 <i class="bi bi-chat-left-heart"></i><span>Feedback</span>
             </a>

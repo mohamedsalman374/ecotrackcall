@@ -38,8 +38,28 @@
                         <a class="nav-link" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Profile</a>
+                        <a class="nav-link" href="{{ url_for('calculator.index') }}">Calculator</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('ai.index') }}">AI Eco Tips</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('analytics.index') }}">Analytics</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('history.index') }}">History</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('feedback.history') }}">Feedback</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('profile.index') }}">Profile</a>
+                    </li>
+                    {% if session.get('user', {}).get('role') == 'admin' %}
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-semibold" href="{{ url_for('admin.index') }}"><i class="bi bi-shield-lock me-1"></i>Admin</a>
+                    </li>
+                    {% endif %}
                     {% else %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('home.index') }}#hero">Home</a>

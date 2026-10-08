@@ -19,8 +19,7 @@ def login_required(f):
 
 def admin_required(f):
     """
-    Decorator to verify that the authenticated user possesses the 'admin' role
-    in the public.profiles table.
+    Decorator to verify that the authenticated user possesses the 'admin' role.
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -29,15 +28,19 @@ def admin_required(f):
             flash('Please log in to access this page.', 'warning')
             return redirect(url_for('auth.login'))
 
-        from app.services.auth_service import AuthService
-        profile_res = AuthService.get_user_profile(user.get('id'), access_token=user.get('access_token'))
+        role = user.get('role')
+        # If role is not cached in session or needs verification, query profile
+        if not role:
+            from app.services.auth_service import AuthService
+            profile_res = AuthService.get_user_profile(user.get('id'), access_token=user.get('access_token'))
+            if profile_res.get('success'):
+                role = profile_res.get('profile', {}).get('role')
+                user['role'] = role
+                session['user'] = user
 
-        if not profile_res.get('success'):
-            return "Access Denied: Could not verify permissions.", 403
-
-        profile = profile_res.get('profile', {})
-        if profile.get('role') != 'admin':
-            return "Access Denied: Administrative privileges required.", 403
+        if role != 'admin':
+            flash('Access Denied: Administrative privileges required.', 'danger')
+            return redirect(url_for('dashboard.dashboard'))
 
         return f(*args, **kwargs)
     return decorated_function

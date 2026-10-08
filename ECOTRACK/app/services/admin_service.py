@@ -19,21 +19,50 @@ class AdminService:
         try:
             client = get_supabase_service_client()
             
-            users_res = client.table("users").select("id", count="exact").execute()
-            active_users_res = client.table("users").select("id", count="exact").eq("is_active", True).execute()
-            calcs_res = client.table("carbon_calculations").select("eco_score", count="exact").execute()
-            ai_res = client.table("ai_recommendations").select("id", count="exact").execute()
-            feedback_res = client.table("feedback").select("id", count="exact").execute()
+            # Fetch total users
+            try:
+                users_res = client.table("profiles").select("id", count="exact").execute()
+                total_users = users_res.count if users_res.count is not None else len(users_res.data or [])
+            except Exception:
+                try:
+                    users_res = client.table("users").select("id", count="exact").execute()
+                    total_users = users_res.count if users_res.count is not None else len(users_res.data or [])
+                except Exception:
+                    total_users = 0
             
-            total_users = users_res.count if users_res.count else 0
-            active_users = active_users_res.count if active_users_res.count else 0
-            total_calcs = calcs_res.count if calcs_res.count else 0
-            total_ai = ai_res.count if ai_res.count else 0
-            total_feedback = feedback_res.count if feedback_res.count else 0
+            # Fetch active users (resilient fallback if is_active column is not present)
+            try:
+                active_users_res = client.table("profiles").select("id", count="exact").eq("is_active", True).execute()
+                active_users = active_users_res.count if active_users_res.count is not None else len(active_users_res.data or [])
+            except Exception:
+                active_users = total_users
+                
+            # Fetch calculations
+            try:
+                calcs_res = client.table("carbon_calculations").select("eco_score", count="exact").execute()
+                total_calcs = calcs_res.count if calcs_res.count is not None else len(calcs_res.data or [])
+                calcs_data = calcs_res.data or []
+            except Exception:
+                total_calcs = 0
+                calcs_data = []
+            
+            # Fetch AI recommendations
+            try:
+                ai_res = client.table("ai_recommendations").select("id", count="exact").execute()
+                total_ai = ai_res.count if ai_res.count is not None else len(ai_res.data or [])
+            except Exception:
+                total_ai = 0
+            
+            # Fetch feedback
+            try:
+                feedback_res = client.table("feedback").select("id", count="exact").execute()
+                total_feedback = feedback_res.count if feedback_res.count is not None else len(feedback_res.data or [])
+            except Exception:
+                total_feedback = 0
             
             avg_score = 0
-            if calcs_res.data and total_calcs > 0:
-                avg_score = sum(c.get('eco_score', 0) for c in calcs_res.data) / total_calcs
+            if calcs_data and total_calcs > 0:
+                avg_score = sum(c.get('eco_score', 0) for c in calcs_data) / total_calcs
                 
             return {
                 "success": True,
@@ -54,7 +83,10 @@ class AdminService:
     def get_users(search_query=None, role_filter=None):
         try:
             client = get_supabase_service_client()
-            query = client.table("users").select("*").order("created_at", desc=True)
+            try:
+                query = client.table("users").select("*").order("created_at", desc=True)
+            except Exception:
+                query = client.table("profiles").select("*").order("created_at", desc=True)
             
             if search_query:
                 query = query.or_(f"email.ilike.%{search_query}%,full_name.ilike.%{search_query}%")
@@ -63,7 +95,7 @@ class AdminService:
                 query = query.eq("role", role_filter)
                 
             response = query.execute()
-            return {"success": True, "data": response.data}
+            return {"success": True, "data": response.data or []}
         except Exception as e:
             logger.error(f"Error fetching users: {str(e)}")
             return {"success": False, "error": str(e)}
@@ -72,7 +104,7 @@ class AdminService:
     def update_user_role(user_id, new_role):
         try:
             client = get_supabase_service_client()
-            client.table("users").update({"role": new_role}).eq("id", user_id).execute()
+            client.table("profiles").update({"role": new_role}).eq("id", user_id).execute()
             return {"success": True}
         except Exception as e:
             logger.error(f"Error updating user role: {str(e)}")
@@ -82,7 +114,7 @@ class AdminService:
     def toggle_user_status(user_id, is_active):
         try:
             client = get_supabase_service_client()
-            client.table("users").update({"is_active": is_active}).eq("id", user_id).execute()
+            client.table("profiles").update({"is_active": is_active}).eq("id", user_id).execute()
             return {"success": True}
         except Exception as e:
             logger.error(f"Error toggling user status: {str(e)}")
@@ -92,12 +124,11 @@ class AdminService:
     def delete_user(user_id):
         try:
             client = get_supabase_service_client()
-            # This deletes the public profile. Note: It does NOT delete the auth.users record automatically.
-            # Usually Supabase requires an admin API call to delete auth.users, which we can simulate if we have the service role key.
-            # Delete auth user:
-            client.auth.admin.delete_user(user_id)
-            # The profile will cascade if foreign keys are set up, but if not, we delete it too.
-            client.table("users").delete().eq("id", user_id).execute()
+            try:
+                client.auth.admin.delete_user(user_id)
+            except Exception as auth_err:
+                logger.warning(f"Could not delete auth user {user_id}: {auth_err}")
+            client.table("profiles").delete().eq("id", user_id).execute()
             return {"success": True}
         except Exception as e:
             logger.error(f"Error deleting user: {str(e)}")
@@ -107,14 +138,23 @@ class AdminService:
     def get_all_calculations(search_query=None):
         try:
             client = get_supabase_service_client()
-            # Perform a join with users table to get user details
-            query = client.table("carbon_calculations").select("*, users(email, full_name)").order("created_at", desc=True)
+            try:
+                query = client.table("carbon_calculations").select("*, profiles(full_name, id)").order("created_at", desc=True)
+                response = query.execute()
+                data = response.data or []
+            except Exception:
+                try:
+                    query = client.table("carbon_calculations").select("*").order("created_at", desc=True)
+                    response = query.execute()
+                    data = response.data or []
+                except Exception:
+                    data = []
             
-            response = query.execute()
-            
-            # Note: supabase-py doesn't currently support nested filtering with ilike smoothly for joined tables via the REST api string.
-            # We will filter manually if search query is provided for this example.
-            data = response.data
+            # Ensure each item has a consistent users object for template rendering
+            for d in data:
+                if 'users' not in d or not d['users']:
+                    d['users'] = d.get('profiles') or {'full_name': 'User', 'email': ''}
+                    
             if search_query:
                 q = search_query.lower()
                 data = [d for d in data if (d.get('users') and q in d['users'].get('email', '').lower()) or 
@@ -139,13 +179,26 @@ class AdminService:
     def get_all_feedback(search_query=None, status_filter=None):
         try:
             client = get_supabase_service_client()
-            query = client.table("feedback").select("*, users(email, full_name)").order("created_at", desc=True)
+            try:
+                query = client.table("feedback").select("*, profiles(full_name, id)").order("created_at", desc=True)
+                if status_filter and status_filter != 'all':
+                    query = query.eq("status", status_filter)
+                response = query.execute()
+                data = response.data or []
+            except Exception:
+                try:
+                    query = client.table("feedback").select("*").order("created_at", desc=True)
+                    if status_filter and status_filter != 'all':
+                        query = query.eq("status", status_filter)
+                    response = query.execute()
+                    data = response.data or []
+                except Exception:
+                    data = []
             
-            if status_filter and status_filter != 'all':
-                query = query.eq("status", status_filter)
-                
-            response = query.execute()
-            data = response.data
+            # Ensure each item has a consistent users object for template rendering
+            for d in data:
+                if 'users' not in d or not d['users']:
+                    d['users'] = d.get('profiles') or {'full_name': 'User', 'email': ''}
             
             if search_query:
                 q = search_query.lower()
@@ -185,18 +238,30 @@ class AdminService:
         try:
             client = get_supabase_service_client()
             
-            # Simple aggregation for chart (last 30 days calculations)
             now = datetime.utcnow()
             thirty_days_ago = now - timedelta(days=30)
             
-            calcs_res = client.table("carbon_calculations").select("created_at, total_emissions").gte("created_at", thirty_days_ago.isoformat()).execute()
-            users_res = client.table("users").select("created_at").gte("created_at", thirty_days_ago.isoformat()).execute()
+            try:
+                calcs_res = client.table("carbon_calculations").select("created_at, total_emissions").gte("created_at", thirty_days_ago.isoformat()).execute()
+                calcs_data = calcs_res.data or []
+            except Exception:
+                calcs_data = []
+                
+            try:
+                users_res = client.table("profiles").select("created_at").gte("created_at", thirty_days_ago.isoformat()).execute()
+                users_data = users_res.data or []
+            except Exception:
+                try:
+                    users_res = client.table("users").select("created_at").gte("created_at", thirty_days_ago.isoformat()).execute()
+                    users_data = users_res.data or []
+                except Exception:
+                    users_data = []
             
             return {
                 "success": True,
                 "data": {
-                    "calculations": calcs_res.data,
-                    "users": users_res.data
+                    "calculations": calcs_data,
+                    "users": users_data
                 }
             }
         except Exception as e:

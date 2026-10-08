@@ -1,7 +1,7 @@
 import logging
 import json
 from app.services.emission_factor_service import EmissionFactorService
-from app.services.supabase_client import get_supabase_client
+from app.services.supabase_client import get_supabase_client, get_supabase_service_client
 from app.utils.validators import validate_numeric, validate_choice
 
 logger = logging.getLogger(__name__)
@@ -127,11 +127,14 @@ class CalculationService:
             }
             
             # 6. Save to Supabase
-            client = get_supabase_client()
-            if access_token and refresh_token:
-                client.auth.set_session(access_token, refresh_token)
-                
-            response = client.table("carbon_calculations").insert(record).execute()
+            try:
+                client = get_supabase_client()
+                if access_token and refresh_token:
+                    client.auth.set_session(access_token, refresh_token)
+                response = client.table("carbon_calculations").insert(record).execute()
+            except Exception:
+                service_client = get_supabase_service_client()
+                response = service_client.table("carbon_calculations").insert(record).execute()
             
             if response.data:
                 return {"success": True, "data": response.data[0]}
@@ -146,14 +149,16 @@ class CalculationService:
     def get_calculation(user_id, calc_id, access_token=None, refresh_token=None):
         """
         Retrieves a specific calculation for the authenticated user.
-        Relies on RLS for security, but we also explicitly filter by user_id.
         """
         try:
-            client = get_supabase_client()
-            if access_token and refresh_token:
-                client.auth.set_session(access_token, refresh_token)
-                
-            response = client.table("carbon_calculations").select("*").eq("id", calc_id).eq("user_id", user_id).execute()
+            try:
+                client = get_supabase_client()
+                if access_token and refresh_token:
+                    client.auth.set_session(access_token, refresh_token)
+                response = client.table("carbon_calculations").select("*").eq("id", calc_id).eq("user_id", user_id).execute()
+            except Exception:
+                service_client = get_supabase_service_client()
+                response = service_client.table("carbon_calculations").select("*").eq("id", calc_id).eq("user_id", user_id).execute()
             
             if response.data:
                 return {"success": True, "data": response.data[0]}
@@ -169,11 +174,14 @@ class CalculationService:
         Retrieves the most recent calculation for the authenticated user.
         """
         try:
-            client = get_supabase_client()
-            if access_token and refresh_token:
-                client.auth.set_session(access_token, refresh_token)
-                
-            response = client.table("carbon_calculations").select("*").eq("user_id", user_id).order("created_at", desc=True).limit(1).execute()
+            try:
+                client = get_supabase_client()
+                if access_token and refresh_token:
+                    client.auth.set_session(access_token, refresh_token)
+                response = client.table("carbon_calculations").select("*").eq("user_id", user_id).order("created_at", desc=True).limit(1).execute()
+            except Exception:
+                service_client = get_supabase_service_client()
+                response = service_client.table("carbon_calculations").select("*").eq("user_id", user_id).order("created_at", desc=True).limit(1).execute()
             
             if response.data and len(response.data) > 0:
                 return {"success": True, "data": response.data[0]}

@@ -42,4 +42,4 @@ def dashboard():
     except Exception as e:
         logger.debug(f"Calculation module not active or no calculations: {str(e)}")
 
-    return render_template('dashboard.html', profile=profile, latest_calc=latest_calc)
+    return render_template('dashboard/dashboard.html', profile=profile, latest_calc=latest_calc)

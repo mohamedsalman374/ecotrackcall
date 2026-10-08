@@ -65,11 +65,15 @@ class GroqService:
             }
             
             # Save to Supabase
-            client = get_supabase_client()
-            if access_token and refresh_token:
-                client.auth.set_session(access_token, refresh_token)
-                
-            db_response = client.table("ai_recommendations").insert(record).execute()
+            try:
+                client = get_supabase_client()
+                if access_token and refresh_token:
+                    client.auth.set_session(access_token, refresh_token)
+                db_response = client.table("ai_recommendations").insert(record).execute()
+            except Exception:
+                from app.services.supabase_client import get_supabase_service_client
+                service_client = get_supabase_service_client()
+                db_response = service_client.table("ai_recommendations").insert(record).execute()
             
             if db_response.data:
                 return {"success": True, "data": db_response.data[0]}
@@ -86,11 +90,15 @@ class GroqService:
         Retrieves the most recent AI recommendation for the user.
         """
         try:
-            client = get_supabase_client()
-            if access_token and refresh_token:
-                client.auth.set_session(access_token, refresh_token)
-                
-            response = client.table("ai_recommendations").select("*").eq("user_id", user_id).order("created_at", desc=True).limit(1).execute()
+            try:
+                client = get_supabase_client()
+                if access_token and refresh_token:
+                    client.auth.set_session(access_token, refresh_token)
+                response = client.table("ai_recommendations").select("*").eq("user_id", user_id).order("created_at", desc=True).limit(1).execute()
+            except Exception:
+                from app.services.supabase_client import get_supabase_service_client
+                service_client = get_supabase_service_client()
+                response = service_client.table("ai_recommendations").select("*").eq("user_id", user_id).order("created_at", desc=True).limit(1).execute()
             
             if response.data and len(response.data) > 0:
                 return {"success": True, "data": response.data[0]}

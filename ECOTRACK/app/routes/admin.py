@@ -5,7 +5,8 @@ import json
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
-@admin_bp.route('/dashboard')
+@admin_bp.route('/', endpoint='index')
+@admin_bp.route('/dashboard', endpoint='dashboard')
 @admin_required
 def dashboard():
     stats_res = AdminService.get_dashboard_stats()
