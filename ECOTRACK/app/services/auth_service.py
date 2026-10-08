@@ -1,149 +1,69 @@
 import logging
-from app.services.supabase_client import get_supabase_client, get_supabase_service_client
-from supabase_auth.errors import AuthApiError
+from typing import Dict, Any, Optional
+from app.services.supabase_service import SupabaseService
 
 logger = logging.getLogger(__name__)
 
+
 class AuthService:
-    @staticmethod
-    def register_user(email, password, full_name):
-        """
-        Registers a new user in Supabase Auth and creates a profile in the users table.
-        """
-        try:
-            client = get_supabase_client()
-            
-            # Register in Supabase Auth
-            auth_response = client.auth.sign_up({
-                "email": email,
-                "password": password
-            })
-            
-            user = auth_response.user
-            
-            if not user:
-                # Some configurations return session/user as none if email confirmation is required and implicit signup is disabled
-                # We'll check if it succeeded by absence of error. But if user is returned, we insert the profile.
-                pass
-                
-            # If user is returned, create the profile
-            if user:
-                service_client = get_supabase_service_client()
-                # Use service role client to bypass RLS for inserting the profile
-                # supabase-py v2 returns an APIResponse object, not a tuple
-                service_client.table('users').insert({
-                    "id": user.id,
-                    "firebase_uid": user.id,
-                    "email": email,
-                    "full_name": full_name
-                }).execute()
-                
-            return {"success": True, "user": user, "message": "Registration successful. Please check your email to verify your account."}
-            
-        except AuthApiError as e:
-            logger.error(f"Registration AuthApiError: {e.message}")
-            return {"success": False, "error": e.message}
-        except Exception as e:
-            logger.error(f"Registration Error: {str(e)}")
-            return {"success": False, "error": "An unexpected error occurred during registration."}
+    """
+    Service layer for handling authentication flows, session verification,
+    and profile interactions via Supabase Auth and PostgreSQL Row Level Security.
+    """
 
     @staticmethod
-    def login_user(email, password):
+    def register_user(email: str, password: str, full_name: str) -> Dict[str, Any]:
         """
-        Logs in a user with email and password.
-        Returns the auth session.
+        Registers a new user in Supabase Auth.
+        Passes full_name so that the database trigger automatically populates public.profiles.
         """
-        try:
-            client = get_supabase_client()
-            auth_response = client.auth.sign_in_with_password({
-                "email": email,
-                "password": password
-            })
-            
-            return {"success": True, "session": auth_response.session, "user": auth_response.user}
-            
-        except AuthApiError as e:
-            logger.error(f"Login AuthApiError: {e.message}")
-            if "Email not confirmed" in e.message:
-                return {"success": False, "error": "Please verify your email address before logging in."}
-            return {"success": False, "error": "Invalid email or password."}
-        except Exception as e:
-            logger.error(f"Login Error: {str(e)}")
-            return {"success": False, "error": "An unexpected error occurred during login."}
-            
-    @staticmethod
-    def reset_password_request(email):
-        """
-        Sends a password reset email to the user.
-        """
-        try:
-            client = get_supabase_client()
-            # Redirect URL should be the frontend reset-password route
-            # For this to work smoothly, the Supabase project must be configured with this redirect URL
-            # Note: The actual redirect URL needs to be configured in Supabase dashboard
-            res = client.auth.reset_password_email(email)
-            return {"success": True, "message": "Password reset email sent."}
-        except AuthApiError as e:
-            logger.error(f"Reset Password Request AuthApiError: {e.message}")
-            return {"success": False, "error": e.message}
-        except Exception as e:
-            logger.error(f"Reset Password Request Error: {str(e)}")
-            return {"success": False, "error": "An unexpected error occurred."}
-            
-    @staticmethod
-    def get_user_profile(user_id):
-        """
-        Retrieves the user profile from the public.users table.
-        """
-        try:
-            service_client = get_supabase_service_client()
-            response = service_client.table('users').select('*').eq('id', user_id).execute()
-            
-            if response.data and len(response.data) > 0:
-                return {"success": True, "profile": response.data[0]}
-            return {"success": False, "error": "Profile not found."}
-        except Exception as e:
-            logger.error(f"Get Profile Error: {str(e)}")
-            return {"success": False, "error": "Could not retrieve user profile."}
+        return SupabaseService.sign_up(email=email, password=password, full_name=full_name)
 
     @staticmethod
-    def ensure_user_profile(user_id, email, full_name=None):
+    def login_user(email: str, password: str) -> Dict[str, Any]:
         """
-        Creates the public.users profile if it doesn't exist.
-        Used as a safety net for users whose profile creation failed during registration.
+        Logs in a user using Supabase Auth and updates last_login timestamp.
         """
-        try:
-            service_client = get_supabase_service_client()
-            # Use email prefix as the name fallback if not provided
-            name = full_name or email.split('@')[0]
-            service_client.table('users').insert({
-                "id": user_id,
-                "firebase_uid": user_id,
-                "email": email,
-                "full_name": name
-            }).execute()
-            logger.info(f"Auto-created missing profile for user {user_id}")
-        except Exception as e:
-            logger.error(f"ensure_user_profile Error: {str(e)}")
+        return SupabaseService.sign_in(email=email, password=password)
 
     @staticmethod
-    def update_password(access_token, new_password):
+    def logout_user(access_token: Optional[str] = None) -> Dict[str, Any]:
         """
-        Updates the user's password using the provided access token.
+        Terminates the user session in Supabase Auth.
         """
-        try:
-            client = get_supabase_client()
-            # Set the session using the access token so we can update the user
-            client.auth.set_session(access_token, "") # Refresh token is not strictly needed for just updating password if token is valid
-            
-            auth_response = client.auth.update_user({
-                "password": new_password
-            })
-            
-            return {"success": True, "message": "Password updated successfully."}
-        except AuthApiError as e:
-            logger.error(f"Update Password AuthApiError: {e.message}")
-            return {"success": False, "error": e.message}
-        except Exception as e:
-            logger.error(f"Update Password Error: {str(e)}")
-            return {"success": False, "error": "An unexpected error occurred during password update."}
+        return SupabaseService.sign_out(access_token=access_token)
+
+    @staticmethod
+    def reset_password_request(email: str, redirect_to: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Initiates a password reset request via Supabase Auth email service.
+        """
+        return SupabaseService.send_password_reset(email=email, redirect_to=redirect_to)
+
+    @staticmethod
+    def update_password(access_token: str, new_password: str) -> Dict[str, Any]:
+        """
+        Updates the user's password using the access token from password recovery.
+        """
+        return SupabaseService.update_password(access_token=access_token, new_password=new_password)
+
+    @staticmethod
+    def get_user_profile(user_id: str, access_token: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Retrieves the user profile record from the public.profiles table.
+        """
+        return SupabaseService.get_profile(user_id=user_id, access_token=access_token)
+
+    @staticmethod
+    def ensure_user_profile(user_id: str, email: str, full_name: Optional[str] = None) -> None:
+        """
+        Safety net to ensure profile exists in public.profiles.
+        """
+        SupabaseService.ensure_profile_exists(user_id=user_id, full_name=full_name or "", email=email)
+
+    @staticmethod
+    def verify_user_token(access_token: str) -> Optional[Any]:
+        """
+        Verifies that an access token is authentic by fetching user from Supabase.
+        """
+        return SupabaseService.get_user(access_token=access_token)

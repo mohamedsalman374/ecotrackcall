@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - EcoTrack{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
+                <div class="card auth-card p-4 p-sm-5">
+                    
+                    <div class="auth-header">
+                        <div class="auth-icon">
+                            <i class="bi bi-person-plus"></i>
+                        </div>
+                        <h2 class="auth-title">Create Account</h2>
+                        <p class="auth-subtitle">Join EcoTrack to track and reduce your carbon footprint</p>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('auth.signup') }}" class="needs-validation" novalidate>
+                        <!-- Full Name Input -->
+                        <div class="mb-3">
+                            <label for="fullName" class="form-label fw-semibold text-secondary small">Full Name</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted">
+                                    <i class="bi bi-person"></i>
+                                </span>
+                                <input type="text" 
+                                       class="form-control form-control-lg border-start-0 ps-0" 
+                                       id="fullName" 
+                                       name="fullName" 
+                                       required 
+                                       placeholder="e.g. Alex Morgan"
+                                       autocomplete="name"
+                                       value="{{ form_data.get('fullName', '') if form_data else '' }}">
+                                <div class="invalid-feedback">Please enter your full name.</div>
+                            </div>
+                        </div>
+
+                        <!-- Email Input -->
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-semibold text-secondary small">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted">
+                                    <i class="bi bi-envelope"></i>
+                                </span>
+                                <input type="email" 
+                                       class="form-control form-control-lg border-start-0 ps-0" 
+                                       id="email" 
+                                       name="email" 
+                                       required 
+                                       placeholder="name@example.com"
+                                       autocomplete="email"
+                                       value="{{ form_data.get('email', '') if form_data else '' }}">
+                                <div class="invalid-feedback">Please enter a valid email address.</div>
+                            </div>
+                        </div>
+
+                        <!-- Password Input -->
+                        <div class="mb-3">
+                            <label for="password" class="form-label fw-semibold text-secondary small">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted">
+                                    <i class="bi bi-lock"></i>
+                                </span>
+                                <input type="password" 
+                                       class="form-control form-control-lg border-start-0 ps-0" 
+                                       id="password" 
+                                       name="password" 
+                                       required 
+                                       minlength="8"
+                                       placeholder="At least 8 characters"
+                                       autocomplete="new-password">
+                                <div class="invalid-feedback">Password must be at least 8 characters long.</div>
+                            </div>
+                            <!-- Real-time Password Strength Meter -->
+                            <div class="password-strength-container">
+                                <div class="password-strength-meter">
+                                    <div id="password-strength-bar" class="password-strength-bar"></div>
+                                </div>
+                                <div id="password-strength-text" class="password-strength-text"></div>
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password Input -->
+                        <div class="mb-4">
+                            <label for="confirmPassword" class="form-label fw-semibold text-secondary small">Confirm Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted">
+                                    <i class="bi bi-shield-lock"></i>
+                                </span>
+                                <input type="password" 
+                                       class="form-control form-control-lg border-start-0 ps-0" 
+                                       id="confirmPassword" 
+                                       name="confirmPassword" 
+                                       required 
+                                       placeholder="Re-enter your password"
+                                       autocomplete="new-password">
+                                <div class="invalid-feedback">Passwords do not match.</div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-eco-primary btn-lg shadow-sm">
+                                <i class="bi bi-person-check me-2"></i>Create Account
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Login Link -->
+                    <div class="auth-links">
+                        Already have an account? 
+                        <a href="{{ url_for('auth.login') }}">Log in here</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

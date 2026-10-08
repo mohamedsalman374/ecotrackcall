@@ -1,0 +1,164 @@
+/* EcoTrack Authentication Module CSS */
+
+:root {
+    --eco-primary: #198754;
+    --eco-primary-hover: #157347;
+    --eco-primary-light: #e8f5e9;
+    --eco-accent: #20c997;
+    --eco-dark: #212529;
+    --eco-gray: #6c757d;
+    --eco-bg: #f8f9fa;
+    --eco-card-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+}
+
+.auth-wrapper {
+    min-height: calc(100vh - 160px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1rem;
+    background-color: var(--eco-bg);
+}
+
+.auth-card {
+    background: #ffffff;
+    border-radius: 1.25rem;
+    border: none;
+    box-shadow: var(--eco-card-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-card:hover {
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.09);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header .auth-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    background: var(--eco-primary-light);
+    color: var(--eco-primary);
+    border-radius: 50%;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.auth-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--eco-dark);
+    margin-bottom: 0.25rem;
+}
+
+.auth-subtitle {
+    font-size: 0.95rem;
+    color: var(--eco-gray);
+    margin-bottom: 0;
+}
+
+.form-floating-custom {
+    position: relative;
+    margin-bottom: 1.25rem;
+}
+
+.form-control-lg {
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid #dee2e6;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control-lg:focus {
+    border-color: var(--eco-primary);
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.18);
+}
+
+.btn-eco-primary {
+    background-color: var(--eco-primary);
+    border-color: var(--eco-primary);
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 1.05rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50rem;
+    transition: all 0.2s ease;
+}
+
+.btn-eco-primary:hover,
+.btn-eco-primary:focus {
+    background-color: var(--eco-primary-hover);
+    border-color: var(--eco-primary-hover);
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(25, 135, 84, 0.25);
+}
+
+.btn-eco-primary:disabled {
+    background-color: #a3cfbb;
+    border-color: #a3cfbb;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Password Strength Indicator */
+.password-strength-container {
+    margin-top: 0.5rem;
+}
+
+.password-strength-meter {
+    height: 4px;
+    background-color: #e9ecef;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 0.35rem;
+}
+
+.password-strength-bar {
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.password-strength-text {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    font-weight: 500;
+}
+
+/* Auth Links */
+.auth-links {
+    font-size: 0.925rem;
+    color: var(--eco-gray);
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.auth-links a {
+    color: var(--eco-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-links a:hover {
+    color: var(--eco-primary-hover);
+    text-decoration: underline;
+}
+
+/* Status Badge */
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
