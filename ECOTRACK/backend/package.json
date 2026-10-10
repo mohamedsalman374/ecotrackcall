@@ -1,0 +1,32 @@
+{
+  "name": "ecotrack-backend",
+  "version": "1.0.0",
+  "description": "EcoTrack REST API — AI Carbon Footprint Calculator & Eco Recommendation System",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node test_suite.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["carbon-footprint", "supabase", "groq", "express", "ecotrack"],
+  "author": "EcoTrack",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.47.10",
+    "cors": "^2.8.5",
+    "csv-stringify": "^6.5.2",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "groq-sdk": "^0.9.1",
+    "helmet": "^8.0.0",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "pdfkit": "^0.15.2",
+    "uuid": "^11.0.5"
+  }
+}

@@ -1,0 +1,255 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+:root {
+  --bs-success: #198754;
+  --bs-success-rgb: 25, 135, 84;
+  --eco-primary: #10b981;
+  --eco-primary-dark: #059669;
+  --eco-primary-light: #d1fae5;
+  --eco-secondary: #047857;
+  --eco-accent: #34d399;
+  --eco-bg: #f8fafc;
+  --eco-card-bg: #ffffff;
+  --eco-text-main: #1e293b;
+  --eco-text-muted: #64748b;
+  --eco-border: #e2e8f0;
+  --eco-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  --eco-shadow-hover: 0 20px 30px -10px rgba(16, 185, 129, 0.15), 0 10px 15px -5px rgba(0, 0, 0, 0.04);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--eco-bg);
+  color: var(--eco-text-main);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main.main-content {
+  flex: 1 0 auto;
+  padding-bottom: 3rem;
+}
+
+/* Navbar */
+.eco-navbar {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--eco-border);
+  transition: all 0.3s ease;
+  z-index: 1030;
+}
+
+.eco-navbar .nav-link {
+  font-weight: 500;
+  color: #475569;
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.eco-navbar .nav-link:hover {
+  color: var(--eco-primary-dark);
+  background-color: rgba(16, 185, 129, 0.08);
+}
+
+.eco-navbar .nav-link.active {
+  color: var(--eco-primary-dark) !important;
+  background-color: rgba(16, 185, 129, 0.12);
+  font-weight: 600;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: #064e3b !important;
+}
+
+/* Footer */
+.eco-footer {
+  flex-shrink: 0;
+  background: #0f172a;
+  color: #94a3b8;
+  border-top: 1px solid #1e293b;
+  margin-top: auto;
+}
+
+.eco-footer a {
+  color: #cbd5e1;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.eco-footer a:hover {
+  color: var(--eco-accent);
+}
+
+/* Cards & Containers */
+.eco-card {
+  background: var(--eco-card-bg);
+  border: 1px solid var(--eco-border);
+  border-radius: 16px;
+  box-shadow: var(--eco-shadow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.eco-card:hover {
+  box-shadow: var(--eco-shadow-hover);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.eco-card-flat {
+  background: var(--eco-card-bg);
+  border: 1px solid var(--eco-border);
+  border-radius: 14px;
+}
+
+/* Glassmorphism accents */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 16px;
+}
+
+/* Buttons */
+.btn-eco-primary {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+  padding: 0.6rem 1.4rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+  transition: all 0.25s ease;
+}
+
+.btn-eco-primary:hover, .btn-eco-primary:focus {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+}
+
+.btn-eco-outline {
+  border: 2px solid var(--eco-primary);
+  color: var(--eco-primary-dark);
+  font-weight: 600;
+  padding: 0.55rem 1.35rem;
+  border-radius: 10px;
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+.btn-eco-outline:hover {
+  background: var(--eco-primary);
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+/* Eco Badges */
+.badge-eco-excellent {
+  background-color: #d1fae5;
+  color: #065f46;
+  font-weight: 600;
+  padding: 0.45rem 0.85rem;
+  border-radius: 9999px;
+}
+
+.badge-eco-good {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  font-weight: 600;
+  padding: 0.45rem 0.85rem;
+  border-radius: 9999px;
+}
+
+.badge-eco-moderate {
+  background-color: #fef3c7;
+  color: #92400e;
+  font-weight: 600;
+  padding: 0.45rem 0.85rem;
+  border-radius: 9999px;
+}
+
+.badge-eco-high {
+  background-color: #fee2e2;
+  color: #991b1b;
+  font-weight: 600;
+  padding: 0.45rem 0.85rem;
+  border-radius: 9999px;
+}
+
+/* Category icons and avatars */
+.icon-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.icon-circle-lg {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
